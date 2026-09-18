@@ -63,6 +63,56 @@ function todayIndex(length) {
   return Math.floor(stamp / 86400000) % length
 }
 
+function GamePreview({ id }) {
+  if (id === 'wordle') {
+    const cells = [
+      ['G', 'correct'], ['L', 'present'], ['Y', 'absent'], ['P', 'absent'], ['H', 'correct'],
+      ['P', 'absent'], ['L', 'correct'], ['A', 'correct'], ['N', 'correct'], ['T', 'correct'],
+    ]
+    return (
+      <div className="card-preview word-preview" aria-hidden="true">
+        {cells.map(([letter, state], index) => (
+          <span className={state} key={`${letter}-${index}`}>{letter}</span>
+        ))}
+      </div>
+    )
+  }
+
+  if (id === 'hangman') {
+    return (
+      <div className="card-preview hang-preview" aria-hidden="true">
+        <i className="hp-post" />
+        <i className="hp-top" />
+        <i className="hp-rope" />
+        <i className="hp-head" />
+        <i className="hp-body" />
+        <i className="hp-arm a" />
+        <i className="hp-arm b" />
+        <div className="hp-word"><span>G</span><span>?</span><span>Y</span><span>?</span><span>H</span></div>
+      </div>
+    )
+  }
+
+  if (id === 'minesweeper') {
+    const mineCells = ['1', '', '1', '', '', '', '2', '✦', '2', '', '', '', '1', '1', '1', '']
+    return (
+      <div className="card-preview mine-preview" aria-hidden="true">
+        {mineCells.map((value, index) => (
+          <span className={value === '✦' ? 'boom' : value ? 'open' : ''} key={index}>{value}</span>
+        ))}
+      </div>
+    )
+  }
+
+  return (
+    <div className="card-preview memory-preview" aria-hidden="true">
+      {['◇', '?', '○', '?', '◇', '△', '?', '○'].map((value, index) => (
+        <span className={value === '?' ? '' : 'open'} key={index}>{value}</span>
+      ))}
+    </div>
+  )
+}
+
 function Dashboard({ profile, totals, onPlay, onReset }) {
   const level = levelFromXp(profile.xp)
   const daily = GAMES[todayIndex(GAMES.length)]
@@ -71,14 +121,17 @@ function Dashboard({ profile, totals, onPlay, onReset }) {
   return (
     <>
       <section className="hero">
-        <div>
+        <div className="hero-copy-block">
           <div className="kicker">GLYPH // ARCADE SYSTEM</div>
           <h1>Small games.<br /><span>Serious scores.</span></h1>
           <p className="hero-copy">
             Four polished brain-breakers in one tiny arcade. Your stats, XP and streak follow you everywhere.
           </p>
           <div className="hero-actions">
-            <button className="primary-btn" onClick={() => onPlay(daily.id)}>Play daily challenge</button>
+            <button className="primary-btn" onClick={() => onPlay(daily.id)}>
+              <span>Play daily challenge</span>
+              <span aria-hidden="true">↗</span>
+            </button>
             <span className="muted-label">{daily.title} is today’s featured game.</span>
           </div>
         </div>
@@ -91,7 +144,10 @@ function Dashboard({ profile, totals, onPlay, onReset }) {
             </div>
             <div className="xp-pill">{profile.xp} XP</div>
           </div>
-          <div className="xp-track"><i style={{ width: `${(level.current / level.needed) * 100}%` }} /></div>
+          <div className="xp-track" aria-label={`${level.current} of ${level.needed} XP to next level`}>
+            <i style={{ width: `${(level.current / level.needed) * 100}%` }} />
+          </div>
+          <div className="next-level-copy">{level.needed - level.current} XP to level {level.level + 1}</div>
           <div className="profile-grid">
             <div><strong>{totals.played}</strong><span>Played</span></div>
             <div><strong>{totals.wins}</strong><span>Wins</span></div>
@@ -118,16 +174,22 @@ function Dashboard({ profile, totals, onPlay, onReset }) {
                 <div className="game-icon">{game.icon}</div>
                 <span className="game-type">{game.eyebrow}</span>
               </div>
-              <div>
+
+              <GamePreview id={game.id} />
+
+              <div className="game-card-copy">
                 <h3>{game.title}</h3>
                 <p>{game.description}</p>
               </div>
+
               <div className="card-stats">
-                <span>{stats.wins}/{stats.played} wins</span>
+                <span><b>{stats.wins}</b> / {stats.played} wins</span>
                 <span>{game.bestLabel(stats.best)}</span>
               </div>
+
               <button className="card-play" onClick={() => onPlay(game.id)}>
-                Play <span>↗</span>
+                <span>Play</span>
+                <span className="play-arrow" aria-hidden="true">↗</span>
               </button>
             </article>
           )
@@ -140,16 +202,19 @@ function Dashboard({ profile, totals, onPlay, onReset }) {
             <span className="kicker">ACHIEVEMENTS</span>
             <h2>Proof of unnecessary competence.</h2>
           </div>
-          <button className="text-btn" onClick={onReset}>Reset local progress</button>
+          <button className="text-btn reset-progress" onClick={onReset}>Reset local progress</button>
         </div>
         <div className="badge-grid">
           {Object.entries(ACHIEVEMENTS).map(([id, item]) => {
             const isUnlocked = profile.achievements.includes(id)
             return (
               <div className={`badge ${isUnlocked ? 'unlocked' : ''}`} key={id}>
-                <span className="badge-mark">{isUnlocked ? '◆' : '◇'}</span>
+                <span className="badge-mark" aria-hidden="true">{isUnlocked ? '◆' : '◇'}</span>
                 <div>
-                  <strong>{item.name}</strong>
+                  <div className="badge-title-row">
+                    <strong>{item.name}</strong>
+                    {isUnlocked && <span className="badge-state">UNLOCKED</span>}
+                  </div>
                   <span>{item.description}</span>
                 </div>
               </div>
@@ -179,7 +244,7 @@ export default function App() {
           <span className="brand-mark">G</span>
           <span>GLYPH</span>
         </button>
-        <div className="topbar-right">
+        <div className="topbar-right" aria-label="Player summary">
           <span className="status-dot" />
           <span>{profile.xp} XP</span>
           <span className="divider">/</span>
@@ -198,7 +263,7 @@ export default function App() {
             }}
           />
         ) : (
-          <section className="game-screen">
+          <section className={`game-screen accent-${gameMeta.accent}`}>
             <button className="back-btn" onClick={() => setActiveGame(null)}>← Back to arcade</button>
             <div className="game-title-row">
               <div>
@@ -206,12 +271,14 @@ export default function App() {
                 <h1>{gameMeta.title}</h1>
                 <p>{gameMeta.description}</p>
               </div>
-              <div className={`game-icon large accent-${gameMeta.accent}`}>{gameMeta.icon}</div>
+              <div className="game-icon large">{gameMeta.icon}</div>
             </div>
-            <ActiveGame
-              key={activeGame}
-              onComplete={(result) => recordResult(activeGame, result)}
-            />
+            <div className="game-stage">
+              <ActiveGame
+                key={activeGame}
+                onComplete={(result) => recordResult(activeGame, result)}
+              />
+            </div>
           </section>
         )}
       </main>
