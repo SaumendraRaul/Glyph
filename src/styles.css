@@ -28,6 +28,7 @@ html {
 
 body {
   margin: 0;
+  overflow-x: hidden;
   min-width: 320px;
   min-height: 100vh;
   background:
@@ -460,7 +461,7 @@ main { padding: 72px 0 64px; }
 .memory-preview {
   padding: 12px 18px;
   display: grid;
-  grid-template-columns: repeat(8, 28px);
+  grid-template-columns: repeat(8, minmax(0, 1fr));
   gap: 5px;
   align-content: center;
 }
@@ -972,6 +973,7 @@ main { padding: 72px 0 64px; }
 
 footer {
   min-height: 78px;
+  padding-bottom: env(safe-area-inset-bottom);
   border-top: 1px solid var(--line);
   color: #515967;
   font-family: 'DM Mono', monospace;
