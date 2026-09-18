@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { ACHIEVEMENTS, useProfile } from './lib/profile'
 import WordGrid from './games/WordGrid'
 import Hangman from './games/Hangman'
@@ -119,7 +120,7 @@ function Dashboard({ profile, totals, onPlay, onReset }) {
   const unlocked = profile.achievements.length
 
   return (
-    <>
+    <div className="dashboard-view">
       <section className="hero">
         <div className="hero-copy-block">
           <div className="kicker">GLYPH // ARCADE SYSTEM</div>
@@ -222,7 +223,7 @@ function Dashboard({ profile, totals, onPlay, onReset }) {
           })}
         </div>
       </section>
-    </>
+    </div>
   )
 }
 
@@ -237,10 +238,23 @@ export default function App() {
 
   const ActiveGame = activeGame ? GAME_COMPONENTS[activeGame] : null
 
+  function navigate(nextGame) {
+    const apply = () => {
+      flushSync(() => setActiveGame(nextGame))
+      window.scrollTo(0, 0)
+    }
+
+    if (document.startViewTransition) {
+      document.startViewTransition(apply)
+    } else {
+      apply()
+    }
+  }
+
   return (
     <div className="app-shell">
       <header className="topbar">
-        <button className="brand" onClick={() => setActiveGame(null)} aria-label="Go to Glyph home">
+        <button className="brand" onClick={() => navigate(null)} aria-label="Go to Glyph home">
           <span className="brand-mark">G</span>
           <span>GLYPH</span>
         </button>
@@ -257,14 +271,14 @@ export default function App() {
           <Dashboard
             profile={profile}
             totals={totals}
-            onPlay={setActiveGame}
+            onPlay={navigate}
             onReset={() => {
               if (window.confirm('Reset all local Glyph stats and achievements?')) resetProfile()
             }}
           />
         ) : (
           <section className={`game-screen accent-${gameMeta.accent}`}>
-            <button className="back-btn" onClick={() => setActiveGame(null)}>← Back to arcade</button>
+            <button className="back-btn" onClick={() => navigate(null)}>← Back to arcade</button>
             <div className="game-title-row">
               <div>
                 <span className="kicker">{gameMeta.eyebrow} // GLYPH</span>
