@@ -102,7 +102,8 @@ export default function Statle({ onComplete }) {
   const [error, setError] = useState('')
   const [status, setStatus] = useState('playing')
   const [spriteMode, setSpriteMode] = useState('artwork')
-  const [message, setMessage] = useState('Pick one stat from each Pokémon. Every stat can be claimed once.')
+  const [revealedStat, setRevealedStat] = useState(null)
+  const [message, setMessage] = useState('Pick one hidden stat from each Pokémon. Every stat can be claimed once.')
 
   const usedIds = useRef(new Set())
   const requestId = useRef(0)
@@ -148,7 +149,8 @@ export default function Statle({ onComplete }) {
     setCurrent(null)
     setStatus('playing')
     setError('')
-    setMessage('Pick one stat from each Pokémon. Every stat can be claimed once.')
+    setRevealedStat(null)
+    setMessage('Pick one hidden stat from each Pokémon. Every stat can be claimed once.')
     loadNext(gen)
   }
 
@@ -171,7 +173,7 @@ export default function Statle({ onComplete }) {
   }
 
   function claim(statKey) {
-    if (!current || loading || status !== 'playing' || claimed[statKey]) return
+    if (!current || loading || status !== 'playing' || claimed[statKey] || revealedStat) return
 
     const statMeta = STATS.find((item) => item.key === statKey)
     const value = current.stats[statKey]
@@ -186,13 +188,13 @@ export default function Statle({ onComplete }) {
       },
     }
 
+    setRevealedStat({ key: statKey, label: statMeta.label, value })
     setClaimed(nextClaimed)
     const nextScore = Object.values(nextClaimed).reduce((sum, item) => sum + item.value, 0)
 
     if (Object.keys(nextClaimed).length === STATS.length) {
       const won = nextScore >= TARGET
       setStatus(won ? 'won' : 'lost')
-      setCurrent(null)
       setMessage(
         won
           ? `${nextScore} BST. Gold target cleared.`
@@ -208,12 +210,19 @@ export default function Statle({ onComplete }) {
           bonusXp: won ? Math.min(40, Math.max(10, Math.floor((nextScore - TARGET) / 5) + 20)) : 0,
         })
       }
+      window.setTimeout(() => {
+        setCurrent(null)
+        setRevealedStat(null)
+      }, 850)
       return
     }
 
-    setMessage(`${current.name}'s ${statMeta.label} locked at ${value}. Rolling next Pokémon…`)
-    setCurrent(null)
-    loadNext(generation)
+    setMessage(`${current.name}'s ${statMeta.label} was ${value}. Locked in.`)
+    window.setTimeout(() => {
+      setCurrent(null)
+      setRevealedStat(null)
+      loadNext(generation)
+    }, 850)
   }
 
   return (
@@ -335,11 +344,19 @@ export default function Statle({ onComplete }) {
                     className={`statle-stat-button ${unavailable ? 'used' : ''}`}
                     key={stat.key}
                     onClick={() => claim(stat.key)}
-                    disabled={unavailable || status !== 'playing'}
+                    disabled={unavailable || status !== 'playing' || Boolean(revealedStat)}
                   >
                     <span>{stat.label}</span>
-                    <strong>{current.stats[stat.key]}</strong>
-                    <small>{unavailable ? 'CLAIMED' : 'SELECT'}</small>
+                    <strong>{revealedStat?.key === stat.key ? revealedStat.value : '?'}</strong>
+                    <small>
+                      {unavailable
+                        ? 'CLAIMED'
+                        : revealedStat?.key === stat.key
+                          ? 'REVEALED'
+                          : revealedStat
+                            ? 'LOCKED'
+                            : 'SELECT'}
+                    </small>
                   </button>
                 )
               })}
@@ -357,7 +374,7 @@ export default function Statle({ onComplete }) {
       <div className={`game-message ${status}`}>{message}</div>
 
       <div className="statle-footnote">
-        Pokémon data and sprites load from PokéAPI. Generation filters use National Pokédex ranges through #1025.
+        Stats stay hidden until selected. Pokémon data and sprites load from PokéAPI. Generation filters use National Pokédex ranges through #1025.
       </div>
     </div>
   )
