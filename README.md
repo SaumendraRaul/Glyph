@@ -1,6 +1,6 @@
 # Glyph
 
-**Glyph** is a responsive browser mini-game arcade built with React and Vite. V2 ships eight games behind one shared progression system.
+**Glyph** is a responsive browser mini-game arcade built with React and Vite. V2 ships nine games behind one shared progression system.
 
 ## V2 games
 
@@ -12,6 +12,7 @@
 - **Snake** — keyboard, swipe, and touch controls; eat 12 targets to clear a run.
 - **Connections** — four hidden word groups, four allowed mistakes, shuffle, and near-miss feedback.
 - **Reaction Test** — five reaction rounds with false-start handling and average reaction time.
+- **Pokémon Connections** — themed 16-word grouping puzzles built from Pokémon, evolutions, regions, legendary groups, and other franchise knowledge.
 
 ## Shared arcade features
 
@@ -20,7 +21,7 @@
 - Win streak
 - Per-game played / wins / best score
 - Persistent local scoreboards with top runs and recent attempt history
-- 12 achievements
+- 13 achievements
 - Daily featured game
 - Responsive desktop/mobile UI
 - Tactile press feedback and game-specific animations
