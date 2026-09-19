@@ -915,7 +915,7 @@ main { padding: 72px 0 64px; }
   background: #5d6674;
 }
 
-.head {
+.gallows .head {
   position: absolute;
   width: 38px;
   height: 38px;
@@ -925,17 +925,17 @@ main { padding: 72px 0 64px; }
   top: 33px;
 }
 
-.body, .arm, .leg {
+.gallows .body, .gallows .arm, .gallows .leg {
   position: absolute;
   width: 4px;
   background: #d4d9e1;
   transform-origin: top;
 }
 
-.head,
-.body,
-.arm,
-.leg {
+.gallows .head,
+.gallows .body,
+.gallows .arm,
+.gallows .leg {
   animation: hangDraw .26s cubic-bezier(.2,.8,.2,1) both;
 }
 
@@ -944,13 +944,13 @@ main { padding: 72px 0 64px; }
   to { opacity: 1; }
 }
 
-.body { height: 72px; right: 36px; top: 71px; }
-.arm { height: 55px; right: 36px; top: 86px; }
-.arm.left { transform: rotate(48deg); }
-.arm.right { transform: rotate(-48deg); }
-.leg { height: 62px; right: 36px; top: 140px; }
-.leg.left { transform: rotate(35deg); }
-.leg.right { transform: rotate(-35deg); }
+.gallows .body { height: 72px; right: 36px; top: 71px; }
+.gallows .arm { height: 55px; right: 36px; top: 86px; }
+.gallows .arm.left { transform: rotate(48deg); }
+.gallows .arm.right { transform: rotate(-48deg); }
+.gallows .leg { height: 62px; right: 36px; top: 140px; }
+.gallows .leg.left { transform: rotate(35deg); }
+.gallows .leg.right { transform: rotate(-35deg); }
 
 .lives {
   position: absolute;
@@ -1392,18 +1392,18 @@ main { padding: 72px 0 64px; }
   background: #11161d;
 }
 
-.snake-cell.body {
+.snake-cell.snake-body {
   background: color-mix(in srgb, var(--game) 58%, #19231e);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--game) 15%, transparent);
 }
 
-.snake-cell.head {
+.snake-cell.snake-head {
   background: var(--game);
   box-shadow: 0 0 10px color-mix(in srgb, var(--game) 32%, transparent);
   animation: snakeHead .3s ease infinite alternate;
 }
 
-.snake-cell.food {
+.snake-cell.snake-food {
   background: #ff726b;
   border-radius: 50%;
   box-shadow: 0 0 10px rgba(255,114,107,.35);
