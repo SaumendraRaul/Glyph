@@ -4,7 +4,7 @@ const KEY = 'glyph-profile-v1'
 const GAME_IDS = ['wordle', 'hangman', 'minesweeper', 'memory', '2048', 'snake', 'connections', 'reaction']
 const V1_IDS = ['wordle', 'hangman', 'minesweeper', 'memory']
 
-const blankGame = () => ({ played: 0, wins: 0, best: null })
+const blankGame = () => ({ played: 0, wins: 0, best: null, history: [] })
 
 const defaultProfile = () => ({
   xp: 0,
@@ -22,7 +22,16 @@ function loadProfile() {
       ...base,
       ...parsed,
       games: Object.fromEntries(
-        GAME_IDS.map((id) => [id, { ...blankGame(), ...(parsed.games?.[id] || {}) }]),
+        GAME_IDS.map((id) => [
+          id,
+          {
+            ...blankGame(),
+            ...(parsed.games?.[id] || {}),
+            history: Array.isArray(parsed.games?.[id]?.history)
+              ? parsed.games[id].history.slice(0, 20)
+              : [],
+          },
+        ]),
       ),
       achievements: Array.isArray(parsed.achievements) ? parsed.achievements : [],
     }
@@ -84,8 +93,10 @@ export function useProfile() {
       game.played += 1
       if (won) game.wins += 1
 
-      if (typeof result.score === 'number' && Number.isFinite(result.score)) {
-        const lowerIsBetter = result.lowerIsBetter !== false
+      const hasScore = typeof result.score === 'number' && Number.isFinite(result.score)
+      const lowerIsBetter = result.lowerIsBetter !== false
+
+      if (hasScore) {
         if (
           game.best == null ||
           (lowerIsBetter && result.score < game.best) ||
@@ -94,6 +105,14 @@ export function useProfile() {
           game.best = result.score
         }
       }
+
+      const entry = {
+        at: Date.now(),
+        won,
+        score: hasScore ? result.score : null,
+        lowerIsBetter,
+      }
+      game.history = [entry, ...(Array.isArray(game.history) ? game.history : [])].slice(0, 20)
 
       const baseXp = won ? 60 : 15
       const bonusXp = won ? Math.max(0, Math.min(40, Math.round(result.bonusXp || 0))) : 0
