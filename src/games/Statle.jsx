@@ -125,6 +125,86 @@ const STATS = [
 ]
 
 const pokemonCache = new Map()
+let showdownDexPromise = null
+
+function showdownSpriteSlug(name) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+}
+
+async function loadShowdownDex() {
+  if (!showdownDexPromise) {
+    showdownDexPromise = fetch('https://play.pokemonshowdown.com/data/pokedex.json')
+      .then((response) => {
+        if (!response.ok) throw new Error(`Pokémon Showdown returned ${response.status}`)
+        return response.json()
+      })
+      .catch((error) => {
+        showdownDexPromise = null
+        throw error
+      })
+  }
+  return showdownDexPromise
+}
+
+function pickShowdownMega(dex, ref) {
+  const candidates = Object.entries(dex).filter(([, species]) => {
+    if (species.num !== ref.baseId) return false
+    const name = String(species.name || '')
+    const forme = String(species.forme || '')
+    return /mega/i.test(name) || /mega/i.test(forme)
+  })
+
+  if (!candidates.length) return null
+
+  const query = String(ref.query || '').toLowerCase()
+  const suffix =
+    query.endsWith('-x') ? 'x' :
+    query.endsWith('-y') ? 'y' :
+    query.endsWith('-z') ? 'z' :
+    null
+
+  if (suffix) {
+    const specific = candidates.find(([, species]) => {
+      const combined = `${species.name || ''} ${species.forme || ''}`.toLowerCase()
+      return new RegExp(`(?:^|[-\\s])${suffix}(?:$|[-\\s])`, 'i').test(combined)
+    })
+    if (specific) return specific
+  }
+
+  return candidates[0]
+}
+
+async function fetchShowdownMega(ref) {
+  const dex = await loadShowdownDex()
+  const match = pickShowdownMega(dex, ref)
+  if (!match) throw new Error(`Mega data unavailable for Pokédex #${ref.baseId}`)
+
+  const [showdownKey, species] = match
+  const stats = species.baseStats || {}
+  const spriteSlug = showdownSpriteSlug(species.name || showdownKey)
+  const sprite = `https://play.pokemonshowdown.com/sprites/gen5/${spriteSlug}.png`
+  const fallbackSprite = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${ref.baseId}.png`
+
+  return {
+    id: ref.baseId,
+    formId: showdownKey,
+    isMega: true,
+    name: species.name || prettyPokemonName(String(ref.query)),
+    types: Array.isArray(species.types) ? species.types : [],
+    artwork: sprite,
+    sprite,
+    fallbackSprite,
+    stats: {
+      hp: stats.hp,
+      attack: stats.atk,
+      defense: stats.def,
+      specialAttack: stats.spa,
+      specialDefense: stats.spd,
+      speed: stats.spe,
+    },
+  }
+}
+
 
 function prettyName(value) {
   return value
@@ -195,7 +275,16 @@ async function fetchPokemon(ref) {
   if (pokemonCache.has(ref.key)) return pokemonCache.get(ref.key)
 
   const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${ref.query}`)
-  if (!response.ok) throw new Error(`PokéAPI returned ${response.status} for ${ref.query}`)
+
+  if (!response.ok) {
+    if (!ref.isMega) {
+      throw new Error(`PokéAPI returned ${response.status} for ${ref.query}`)
+    }
+
+    const fallbackMega = await fetchShowdownMega(ref)
+    pokemonCache.set(ref.key, fallbackMega)
+    return fallbackMega
+  }
 
   const data = await response.json()
   const statMap = Object.fromEntries(data.stats.map((entry) => [entry.stat.name, entry.base_stat]))
@@ -215,6 +304,9 @@ async function fetchPokemon(ref) {
       data.sprites?.front_default ||
       data.sprites?.other?.['official-artwork']?.front_default ||
       '',
+    fallbackSprite:
+      data.sprites?.front_default ||
+      `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${ref.baseId}.png`,
     stats: {
       hp: statMap.hp,
       attack: statMap.attack,
@@ -261,7 +353,7 @@ export default function Statle({ onComplete }) {
   const round = Math.min(Object.keys(claimed).length + 1, 6)
   const medal = medalFor(score)
 
-  async function loadNext(gen = generation, mode = megaMode) {
+  async function loadNext(gen = generation, mode = megaMode, attempt = 0) {
     const ref = randomPokemonRef(gen, mode, usedRefs.current)
     if (!ref) {
       setError('No unused Pokémon match these filters.')
@@ -280,6 +372,14 @@ export default function Statle({ onComplete }) {
       setCurrent(pokemon)
     } catch (err) {
       if (token !== requestId.current) return
+
+      usedRefs.current.add(ref.key)
+
+      if (attempt < 5) {
+        setMessage('That form is unavailable from the data source. Skipping it…')
+        return loadNext(gen, mode, attempt + 1)
+      }
+
       setError(err instanceof Error ? err.message : 'Could not load Pokémon data.')
     } finally {
       if (token === requestId.current) setLoading(false)
@@ -341,6 +441,7 @@ export default function Statle({ onComplete }) {
         pokemonId: current.id,
         pokemonName: current.name,
         sprite: current.sprite,
+        fallbackSprite: current.fallbackSprite,
         statLabel: statMeta.label,
         isMega: current.isMega,
       },
@@ -469,7 +570,15 @@ export default function Statle({ onComplete }) {
               {pick ? (
                 <>
                   <div className="statle-slot-sprite">
-                    <img src={pick.sprite} alt="" />
+                    <img
+                      src={pick.sprite}
+                      alt=""
+                      onError={(event) => {
+                        if (pick.fallbackSprite && event.currentTarget.src !== pick.fallbackSprite) {
+                          event.currentTarget.src = pick.fallbackSprite
+                        }
+                      }}
+                    />
                     {pick.isMega && <span className="mega-dot" title="Mega Evolution">M</span>}
                   </div>
                   <strong>{pick.value}</strong>
@@ -537,6 +646,11 @@ export default function Statle({ onComplete }) {
                   src={spriteMode === 'artwork' ? current.artwork : current.sprite}
                   alt={current.name}
                   loading="eager"
+                  onError={(event) => {
+                    if (current.fallbackSprite && event.currentTarget.src !== current.fallbackSprite) {
+                      event.currentTarget.src = current.fallbackSprite
+                    }
+                  }}
                 />
                 {current.isMega && <span className="statle-mega-badge">MEGA</span>}
               </div>
