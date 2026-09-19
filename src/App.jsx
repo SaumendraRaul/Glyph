@@ -108,6 +108,155 @@ function todayIndex(length) {
   return Math.floor(stamp / 86400000) % length
 }
 
+
+const SCOREBOARD_META = {
+  wordle: {
+    label: 'GUESSES',
+    format: (score) => `${score}/6`,
+    lowerIsBetter: true,
+    rankLosses: false,
+  },
+  hangman: {
+    label: 'MISSES',
+    format: (score) => `${score}`,
+    lowerIsBetter: true,
+    rankLosses: false,
+  },
+  minesweeper: {
+    label: 'TIME',
+    format: (score) => `${score}s`,
+    lowerIsBetter: true,
+    rankLosses: false,
+  },
+  memory: {
+    label: 'MOVES',
+    format: (score) => `${score}`,
+    lowerIsBetter: true,
+    rankLosses: false,
+  },
+  '2048': {
+    label: 'SCORE',
+    format: (score) => score.toLocaleString(),
+    lowerIsBetter: false,
+    rankLosses: true,
+  },
+  snake: {
+    label: 'FOOD',
+    format: (score) => `${score}`,
+    lowerIsBetter: false,
+    rankLosses: true,
+  },
+  connections: {
+    label: 'MISTAKES',
+    format: (score) => `${score}/4`,
+    lowerIsBetter: true,
+    rankLosses: false,
+  },
+  reaction: {
+    label: 'AVG TIME',
+    format: (score) => `${score} ms`,
+    lowerIsBetter: true,
+    rankLosses: false,
+  },
+}
+
+function formatAttemptTime(timestamp) {
+  if (!timestamp) return ''
+  const date = new Date(timestamp)
+  const now = new Date()
+  const sameDay =
+    date.getFullYear() === now.getFullYear() &&
+    date.getMonth() === now.getMonth() &&
+    date.getDate() === now.getDate()
+
+  if (sameDay) {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  }
+
+  return date.toLocaleDateString([], { month: 'short', day: 'numeric' })
+}
+
+function LocalScoreboard({ gameId, stats }) {
+  const meta = SCOREBOARD_META[gameId]
+  if (!meta || !stats) return null
+
+  const history = Array.isArray(stats.history) ? stats.history : []
+  const ranked = history
+    .filter((entry) =>
+      typeof entry.score === 'number' &&
+      Number.isFinite(entry.score) &&
+      (meta.rankLosses || entry.won),
+    )
+    .sort((a, b) => meta.lowerIsBetter ? a.score - b.score : b.score - a.score)
+    .slice(0, 5)
+
+  const recent = history.slice(0, 6)
+
+  return (
+    <aside className="scoreboard-panel" aria-label="Local score history">
+      <div className="scoreboard-head">
+        <div>
+          <span className="micro">LOCAL SCOREBOARD</span>
+          <strong>Run history</strong>
+        </div>
+        <span className="scoreboard-count">{stats.played} PLAYED</span>
+      </div>
+
+      <div className="scoreboard-best">
+        <span>ALL-TIME BEST</span>
+        <strong>{stats.best == null ? '—' : meta.format(stats.best)}</strong>
+        <small>{meta.label}</small>
+      </div>
+
+      <section className="score-section">
+        <div className="score-section-title">
+          <span>BEST RUNS</span>
+          <span>{ranked.length}/5</span>
+        </div>
+
+        {ranked.length ? (
+          <div className="score-list">
+            {ranked.map((entry, index) => (
+              <div className="score-row" key={`best-${entry.at}-${index}`}>
+                <span className={`score-rank rank-${index + 1}`}>#{index + 1}</span>
+                <strong>{meta.format(entry.score)}</strong>
+                <small>{formatAttemptTime(entry.at)}</small>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="score-empty">Finish a scored run to populate this board.</div>
+        )}
+      </section>
+
+      <section className="score-section recent-section">
+        <div className="score-section-title">
+          <span>RECENT</span>
+          <span>{recent.length}/20</span>
+        </div>
+
+        {recent.length ? (
+          <div className="score-list">
+            {recent.map((entry, index) => (
+              <div className="score-row recent-row" key={`recent-${entry.at}-${index}`}>
+                <span className={`result-dot ${entry.won ? 'win' : 'loss'}`} />
+                <strong>
+                  {typeof entry.score === 'number' ? meta.format(entry.score) : entry.won ? 'WIN' : 'DNF'}
+                </strong>
+                <small>{formatAttemptTime(entry.at)}</small>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="score-empty">
+            Detailed history starts with your next attempt. Existing best scores are preserved above.
+          </div>
+        )}
+      </section>
+    </aside>
+  )
+}
+
 function GamePreview({ id }) {
   if (id === 'wordle') {
     const cells = [
@@ -375,11 +524,14 @@ export default function App() {
               </div>
               <div className="game-icon large">{gameMeta.icon}</div>
             </div>
-            <div className="game-stage">
-              <ActiveGame
-                key={activeGame}
-                onComplete={(result) => recordResult(activeGame, result)}
-              />
+            <div className="game-play-layout">
+              <div className="game-stage">
+                <ActiveGame
+                  key={activeGame}
+                  onComplete={(result) => recordResult(activeGame, result)}
+                />
+              </div>
+              <LocalScoreboard gameId={activeGame} stats={profile.games[activeGame]} />
             </div>
           </section>
         )}
