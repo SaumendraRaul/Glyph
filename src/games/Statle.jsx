@@ -199,6 +199,7 @@ export default function Statle({ onComplete }) {
 
   const usedRefs = useRef(new Set())
   const requestId = useRef(0)
+  const advanceTimer = useRef(null)
   const completed = useRef(false)
 
   const score = useMemo(
@@ -234,6 +235,8 @@ export default function Statle({ onComplete }) {
   }
 
   function reset(gen = generation, mode = megaMode) {
+    if (advanceTimer.current) window.clearTimeout(advanceTimer.current)
+    advanceTimer.current = null
     requestId.current += 1
     usedRefs.current = new Set()
     completed.current = false
@@ -250,6 +253,7 @@ export default function Statle({ onComplete }) {
     reset('ALL', 'NONE')
     return () => {
       requestId.current += 1
+      if (advanceTimer.current) window.clearTimeout(advanceTimer.current)
     }
     // Initial run only.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -314,17 +318,19 @@ export default function Statle({ onComplete }) {
         })
       }
 
-      window.setTimeout(() => {
+      advanceTimer.current = window.setTimeout(() => {
         setCurrent(null)
         setRevealedStat(null)
+        advanceTimer.current = null
       }, 850)
       return
     }
 
     setMessage(`${current.name}'s ${statMeta.label} was ${value}. Locked in.`)
-    window.setTimeout(() => {
+    advanceTimer.current = window.setTimeout(() => {
       setCurrent(null)
       setRevealedStat(null)
+      advanceTimer.current = null
       loadNext(generation, megaMode)
     }, 850)
   }
