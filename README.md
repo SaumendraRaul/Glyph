@@ -19,6 +19,7 @@
 - XP and levels
 - Win streak
 - Per-game played / wins / best score
+- Persistent local scoreboards with top runs and recent attempt history
 - 12 achievements
 - Daily featured game
 - Responsive desktop/mobile UI
