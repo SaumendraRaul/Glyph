@@ -403,8 +403,16 @@ export default function Statle({ onComplete }) {
     [runPokemon],
   )
   const actualPicks = useMemo(
-    () => STATS.map((stat) => claimed[stat.key]).filter(Boolean),
-    [claimed],
+    () => runPokemon
+      .map((pokemon) =>
+        Object.values(claimed).find(
+          (pick) =>
+            pick.pokemonName === pokemon.name &&
+            pick.pokemonId === pokemon.id,
+        ),
+      )
+      .filter(Boolean),
+    [claimed, runPokemon],
   )
 
   async function loadNext(gen = generation, mode = megaMode, attempt = 0) {
