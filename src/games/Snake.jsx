@@ -166,7 +166,7 @@ export default function Snake({ onComplete }) {
           const isFood = food.x === x && food.y === y
           return (
             <span
-              className={`snake-cell ${bodyIndex === 0 ? 'head' : bodyIndex != null ? 'body' : ''} ${isFood ? 'food' : ''}`}
+              className={`snake-cell ${bodyIndex === 0 ? 'snake-head' : bodyIndex != null ? 'snake-body' : ''} ${isFood ? 'snake-food' : ''}`}
               key={index}
             />
           )
