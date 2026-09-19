@@ -9,6 +9,7 @@ import Game2048 from './games/Game2048'
 import Snake from './games/Snake'
 import Connections from './games/Connections'
 import ReactionTest from './games/ReactionTest'
+import PokemonConnections from './games/PokemonConnections'
 
 const GAMES = [
   {
@@ -83,6 +84,15 @@ const GAMES = [
     accent: 'blue',
     bestLabel: (best) => (best == null ? 'No best yet' : `Best: ${best}ms avg`),
   },
+  {
+    id: 'pokemon-connections',
+    title: 'Pokémon Connections',
+    eyebrow: 'POKÉMON',
+    icon: 'PK',
+    description: 'Sort sixteen Pokémon into four hidden groups.',
+    accent: 'poke',
+    bestLabel: (best) => (best == null ? 'No best yet' : `Best: ${best} mistakes`),
+  },
 ]
 
 const GAME_COMPONENTS = {
@@ -94,6 +104,7 @@ const GAME_COMPONENTS = {
   snake: Snake,
   connections: Connections,
   reaction: ReactionTest,
+  'pokemon-connections': PokemonConnections,
 }
 
 function levelFromXp(xp) {
@@ -155,6 +166,12 @@ const SCOREBOARD_META = {
   reaction: {
     label: 'AVG TIME',
     format: (score) => `${score} ms`,
+    lowerIsBetter: true,
+    rankLosses: false,
+  },
+  'pokemon-connections': {
+    label: 'MISTAKES',
+    format: (score) => `${score}/4`,
     lowerIsBetter: true,
     rankLosses: false,
   },
@@ -340,6 +357,16 @@ function GamePreview({ id }) {
     )
   }
 
+  if (id === 'pokemon-connections') {
+    return (
+      <div className="card-preview pokemon-preview" aria-hidden="true">
+        <span>PIKACHU</span><span>EEVEE</span><span>GENGAR</span><span>LUCARIO</span>
+        <span className="soft">MEWTWO</span><span className="soft">SNORLAX</span><span className="soft">GARDEVOIR</span><span className="soft">ABSOL</span>
+        <i className="pokemon-preview-ball" />
+      </div>
+    )
+  }
+
   return (
     <div className="card-preview reaction-preview" aria-hidden="true">
       <div className="reaction-mini-dot" />
@@ -363,7 +390,7 @@ function Dashboard({ profile, totals, onPlay, onReset }) {
           <div className="kicker">GLYPH // ARCADE SYSTEM</div>
           <h1>Small games.<br /><span>Serious scores.</span></h1>
           <p className="hero-copy">
-            Eight polished brain-breakers in one tiny arcade. Your stats, XP and streak follow you everywhere.
+            Nine polished brain-breakers in one tiny arcade. Your stats, XP and streak follow you everywhere.
           </p>
           <div className="hero-actions">
             <button className="primary-btn" onClick={() => onPlay(daily.id)}>
