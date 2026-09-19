@@ -1506,6 +1506,94 @@ main { padding: 72px 0 64px; }
 }
 
 
+
+/* Connections filters */
+.connection-filters {
+  margin-bottom: 14px;
+  padding: 12px;
+  border: 1px solid #272f3a;
+  border-radius: 12px;
+  background: #0e1319;
+  display: grid;
+  gap: 10px;
+}
+
+.filter-row {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+}
+
+.filter-label {
+  color: #667181;
+  font: 500 .55rem 'DM Mono', monospace;
+  letter-spacing: .11em;
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.filter-chip {
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid #303846;
+  border-radius: 999px;
+  background: #151b23;
+  color: #7f8999;
+  font: 600 .58rem 'DM Mono', monospace;
+  letter-spacing: .05em;
+  transition: transform .14s ease, border-color .14s ease, background .14s ease, color .14s ease;
+}
+
+.filter-chip:hover {
+  color: #dce3ed;
+  border-color: #45505f;
+  background: #1a212b;
+}
+
+.filter-chip.active {
+  color: var(--game);
+  border-color: color-mix(in srgb, var(--game) 46%, #38414d);
+  background: color-mix(in srgb, var(--game) 7%, #151b23);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--game) 7%, transparent);
+}
+
+.filter-chip:active {
+  transform: scale(.94);
+}
+
+.filter-summary {
+  padding-top: 2px;
+  color: #596372;
+  font: 500 .55rem 'DM Mono', monospace;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.filter-summary strong {
+  color: #aeb7c5;
+  font-weight: 500;
+}
+
+.pokemon-filter-panel {
+  border-color: #3b3131;
+  background:
+    linear-gradient(90deg, rgba(204,58,58,.035), transparent 50%),
+    #0e1319;
+}
+
+.pokemon-filter-panel .filter-chip.active {
+  color: #fff2a8;
+  border-color: #8b7133;
+  background: linear-gradient(145deg, rgba(204,58,58,.12), rgba(255,216,77,.05)), #171719;
+}
+
 /* Pokémon Connections */
 .pokemon-preview {
   padding: 12px 14px;
@@ -2284,6 +2372,20 @@ footer {
     min-height: 70px;
   }
 
+  .filter-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .filter-chips {
+    gap: 5px;
+  }
+
+  .filter-chip {
+    min-height: 34px;
+    padding: 0 9px;
+  }
+
   .reaction-zone {
     min-height: 255px;
   }
@@ -2358,6 +2460,23 @@ footer {
 
   .connections-actions > button {
     width: 100%;
+  }
+
+  .connection-filters {
+    padding: 10px;
+  }
+
+  .filter-chips {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .filter-chip {
+    width: 100%;
+  }
+
+  .filter-summary {
+    line-height: 1.45;
   }
 
   .reaction-zone {
