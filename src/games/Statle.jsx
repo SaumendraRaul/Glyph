@@ -189,7 +189,7 @@ async function fetchShowdownMega(ref) {
     id: ref.baseId,
     formId: showdownKey,
     isMega: true,
-    name: species.name || prettyPokemonName(String(ref.query)),
+    name: prettyPokemonName(String(species.name || ref.query).toLowerCase()),
     types: Array.isArray(species.types) ? species.types : [],
     artwork: sprite,
     sprite,
@@ -729,7 +729,7 @@ export default function Statle({ onComplete }) {
       <div className={`game-message ${status}`}>{message}</div>
 
       <div className="statle-footnote">
-        Stats stay hidden until you pick one, then the full spread is revealed. Mega filters include the modern Legends: Z-A and Mega Dimension Mega roster available through PokéAPI.
+        Stats stay hidden until you pick one, then the full spread is revealed. Standard forms use PokéAPI; unsupported Mega forms fall back to Pokémon Showdown dex data and sprites.
       </div>
     </div>
   )
