@@ -15,6 +15,7 @@ const GENERATIONS = [
 ]
 
 const MEGA_FORMS = [
+  // X/Y + ORAS Megas
   { slug: 'venusaur-mega', baseId: 3 },
   { slug: 'charizard-mega-x', baseId: 6 },
   { slug: 'charizard-mega-y', baseId: 6 },
@@ -63,6 +64,55 @@ const MEGA_FORMS = [
   { slug: 'gallade-mega', baseId: 475 },
   { slug: 'audino-mega', baseId: 531 },
   { slug: 'diancie-mega', baseId: 719 },
+
+  // Legends: Z-A base-game Megas
+  { slug: 'clefable-mega', baseId: 36 },
+  { slug: 'victreebel-mega', baseId: 71 },
+  { slug: 'starmie-mega', baseId: 121 },
+  { slug: 'dragonite-mega', baseId: 149 },
+  { slug: 'meganium-mega', baseId: 154 },
+  { slug: 'feraligatr-mega', baseId: 160 },
+  { slug: 'skarmory-mega', baseId: 227 },
+  { slug: 'froslass-mega', baseId: 478 },
+  { slug: 'emboar-mega', baseId: 500 },
+  { slug: 'excadrill-mega', baseId: 530 },
+  { slug: 'scolipede-mega', baseId: 545 },
+  { slug: 'scrafty-mega', baseId: 560 },
+  { slug: 'eelektross-mega', baseId: 604 },
+  { slug: 'chandelure-mega', baseId: 609 },
+  { slug: 'chesnaught-mega', baseId: 652 },
+  { slug: 'delphox-mega', baseId: 655 },
+  { slug: 'greninja-mega', baseId: 658 },
+  { slug: 'pyroar-mega', baseId: 668 },
+  { slug: 'floette-mega', baseId: 670 },
+  { slug: 'malamar-mega', baseId: 687 },
+  { slug: 'barbaracle-mega', baseId: 689 },
+  { slug: 'dragalge-mega', baseId: 691 },
+  { slug: 'hawlucha-mega', baseId: 701 },
+  { slug: 'zygarde-mega', baseId: 718 },
+  { slug: 'drampa-mega', baseId: 780 },
+  { slug: 'falinks-mega', baseId: 870 },
+
+  // Mega Dimension Megas
+  { slug: 'raichu-mega-x', baseId: 26 },
+  { slug: 'raichu-mega-y', baseId: 26 },
+  { slug: 'chimecho-mega', baseId: 358 },
+  { slug: 'absol-mega-z', baseId: 359 },
+  { slug: 'staraptor-mega', baseId: 398 },
+  { slug: 'garchomp-mega-z', baseId: 445 },
+  { slug: 'lucario-mega-z', baseId: 448 },
+  { slug: 'heatran-mega', baseId: 485 },
+  { slug: 'darkrai-mega', baseId: 491 },
+  { slug: 'golurk-mega', baseId: 623 },
+  { slug: 'meowstic-mega', baseId: 678 },
+  { slug: 'crabominable-mega', baseId: 740 },
+  { slug: 'golisopod-mega', baseId: 768 },
+  { slug: 'magearna-mega', baseId: 801 },
+  { slug: 'zeraora-mega', baseId: 807 },
+  { slug: 'scovillain-mega', baseId: 952 },
+  { slug: 'glimmora-mega', baseId: 970 },
+  { slug: 'tatsugiri-mega', baseId: 978 },
+  { slug: 'baxcalibur-mega', baseId: 998 },
 ]
 
 const STATS = [
@@ -103,6 +153,7 @@ function selectedRange(generation) {
 
 function refsForFilters(generation, megaMode) {
   const range = selectedRange(generation)
+
   const baseRefs = Array.from(
     { length: range.end - range.start + 1 },
     (_, index) => {
@@ -144,7 +195,7 @@ async function fetchPokemon(ref) {
   if (pokemonCache.has(ref.key)) return pokemonCache.get(ref.key)
 
   const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${ref.query}`)
-  if (!response.ok) throw new Error(`PokéAPI returned ${response.status}`)
+  if (!response.ok) throw new Error(`PokéAPI returned ${response.status} for ${ref.query}`)
 
   const data = await response.json()
   const statMap = Object.fromEntries(data.stats.map((entry) => [entry.stat.name, entry.base_stat]))
@@ -195,12 +246,13 @@ export default function Statle({ onComplete }) {
   const [status, setStatus] = useState('playing')
   const [spriteMode, setSpriteMode] = useState('artwork')
   const [revealedStat, setRevealedStat] = useState(null)
+  const [pendingResult, setPendingResult] = useState(null)
   const [message, setMessage] = useState('Pick one hidden stat from each Pokémon. Every stat can be claimed once.')
 
   const usedRefs = useRef(new Set())
   const requestId = useRef(0)
-  const advanceTimer = useRef(null)
   const completed = useRef(false)
+  const advancing = useRef(false)
 
   const score = useMemo(
     () => Object.values(claimed).reduce((sum, item) => sum + item.value, 0),
@@ -235,16 +287,16 @@ export default function Statle({ onComplete }) {
   }
 
   function reset(gen = generation, mode = megaMode) {
-    if (advanceTimer.current) window.clearTimeout(advanceTimer.current)
-    advanceTimer.current = null
     requestId.current += 1
     usedRefs.current = new Set()
     completed.current = false
+    advancing.current = false
     setClaimed({})
     setCurrent(null)
     setStatus('playing')
     setError('')
     setRevealedStat(null)
+    setPendingResult(null)
     setMessage('Pick one hidden stat from each Pokémon. Every stat can be claimed once.')
     loadNext(gen, mode)
   }
@@ -253,7 +305,6 @@ export default function Statle({ onComplete }) {
     reset('ALL', 'NONE')
     return () => {
       requestId.current += 1
-      if (advanceTimer.current) window.clearTimeout(advanceTimer.current)
     }
     // Initial run only.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -297,42 +348,63 @@ export default function Statle({ onComplete }) {
 
     setRevealedStat({ key: statKey, label: statMeta.label, value })
     setClaimed(nextClaimed)
-    const nextScore = Object.values(nextClaimed).reduce((sum, item) => sum + item.value, 0)
 
-    if (Object.keys(nextClaimed).length === STATS.length) {
+    const nextScore = Object.values(nextClaimed).reduce((sum, item) => sum + item.value, 0)
+    const isFinal = Object.keys(nextClaimed).length === STATS.length
+
+    if (isFinal) {
       const won = nextScore >= TARGET
+      setPendingResult({ won, score: nextScore })
+      setMessage(
+        `${current.name}'s full stat spread revealed. Review it, then finish the run.`,
+      )
+    } else {
+      setPendingResult(null)
+      setMessage(
+        `${current.name}'s ${statMeta.label} was ${value}. All six stats are revealed below. Click Next Pokémon when ready.`,
+      )
+    }
+  }
+
+  function advance() {
+    if (!revealedStat || advancing.current) return
+    advancing.current = true
+
+    if (pendingResult) {
+      const { won, score: finalScore } = pendingResult
       setStatus(won ? 'won' : 'lost')
       setMessage(
         won
-          ? `${nextScore} BST. Gold target cleared.`
-          : `${nextScore} BST. You needed ${TARGET - nextScore} more for gold.`,
+          ? `${finalScore} BST. Gold target cleared.`
+          : `${finalScore} BST. You needed ${TARGET - finalScore} more for gold.`,
       )
 
       if (!completed.current) {
         completed.current = true
         onComplete({
           won,
-          score: nextScore,
+          score: finalScore,
           lowerIsBetter: false,
-          bonusXp: won ? Math.min(40, Math.max(10, Math.floor((nextScore - TARGET) / 5) + 20)) : 0,
+          bonusXp: won
+            ? Math.min(40, Math.max(10, Math.floor((finalScore - TARGET) / 5) + 20))
+            : 0,
         })
       }
 
-      advanceTimer.current = window.setTimeout(() => {
-        setCurrent(null)
-        setRevealedStat(null)
-        advanceTimer.current = null
-      }, 850)
+      setCurrent(null)
+      setRevealedStat(null)
+      setPendingResult(null)
+      advancing.current = false
       return
     }
 
-    setMessage(`${current.name}'s ${statMeta.label} was ${value}. Locked in.`)
-    advanceTimer.current = window.setTimeout(() => {
-      setCurrent(null)
-      setRevealedStat(null)
-      advanceTimer.current = null
-      loadNext(generation, megaMode)
-    }, 850)
+    setCurrent(null)
+    setRevealedStat(null)
+    setPendingResult(null)
+    setMessage('Rolling next Pokémon…')
+    loadNext(generation, megaMode).finally(() => {
+      advancing.current = false
+    })
   }
 
   return (
@@ -384,6 +456,8 @@ export default function Statle({ onComplete }) {
         <strong>
           {megaMode === 'ONLY' ? 'MEGAS ONLY' : megaMode === 'NONE' ? 'NO MEGAS' : 'ALL FORMS'}
         </strong>
+        <span>•</span>
+        <span>{refsForFilters(generation, megaMode).length} FORMS</span>
       </div>
 
       <div className="statle-board">
@@ -478,31 +552,56 @@ export default function Statle({ onComplete }) {
               </div>
             </div>
 
-            <div className="statle-stat-grid">
+            <div className={`statle-stat-grid ${revealedStat ? 'is-revealed' : ''}`}>
               {STATS.map((stat) => {
-                const unavailable = Boolean(claimed[stat.key])
+                const alreadyClaimed = Boolean(claimed[stat.key])
+                const isChosen = revealedStat?.key === stat.key
+                const showValues = Boolean(revealedStat)
+
                 return (
                   <button
-                    className={`statle-stat-button ${unavailable ? 'used' : ''}`}
+                    className={[
+                      'statle-stat-button',
+                      alreadyClaimed ? 'used' : '',
+                      showValues ? 'revealed' : '',
+                      isChosen ? 'chosen' : '',
+                    ].filter(Boolean).join(' ')}
                     key={stat.key}
                     onClick={() => claim(stat.key)}
-                    disabled={unavailable || status !== 'playing' || Boolean(revealedStat)}
+                    disabled={alreadyClaimed || status !== 'playing' || showValues}
                   >
                     <span>{stat.label}</span>
-                    <strong>{revealedStat?.key === stat.key ? revealedStat.value : '?'}</strong>
+                    <strong>{showValues ? current.stats[stat.key] : '?'}</strong>
                     <small>
-                      {unavailable
-                        ? 'CLAIMED'
-                        : revealedStat?.key === stat.key
-                          ? 'REVEALED'
-                          : revealedStat
-                            ? 'LOCKED'
-                            : 'SELECT'}
+                      {showValues
+                        ? isChosen
+                          ? 'PICKED'
+                          : alreadyClaimed
+                            ? 'USED'
+                            : 'REVEALED'
+                        : alreadyClaimed
+                          ? 'CLAIMED'
+                          : 'SELECT'}
                     </small>
                   </button>
                 )
               })}
             </div>
+
+            {revealedStat && (
+              <div className="statle-reveal-actions">
+                <div>
+                  <span className="micro">FULL SPREAD REVEALED</span>
+                  <strong>
+                    You claimed {revealedStat.label} = {revealedStat.value}
+                  </strong>
+                </div>
+                <button className="primary-btn" onClick={advance}>
+                  {pendingResult ? 'See result' : 'Next Pokémon'}
+                  <span aria-hidden="true">→</span>
+                </button>
+              </div>
+            )}
           </>
         ) : (
           <div className="statle-finished">
@@ -516,7 +615,7 @@ export default function Statle({ onComplete }) {
       <div className={`game-message ${status}`}>{message}</div>
 
       <div className="statle-footnote">
-        Stats stay hidden until selected. Mega filters use Mega-form entries available through PokéAPI.
+        Stats stay hidden until you pick one, then the full spread is revealed. Mega filters include the modern Legends: Z-A and Mega Dimension Mega roster available through PokéAPI.
       </div>
     </div>
   )
