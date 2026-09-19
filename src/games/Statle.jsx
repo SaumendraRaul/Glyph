@@ -328,6 +328,51 @@ function medalFor(score) {
   return { label: 'TRAINING', className: 'training' }
 }
 
+function bestPossibleAssignment(pokemon) {
+  if (pokemon.length !== STATS.length) return null
+
+  let bestScore = -Infinity
+  let bestPicks = []
+
+  function search(index, remainingStats, total, picks) {
+    if (index === pokemon.length) {
+      if (total > bestScore) {
+        bestScore = total
+        bestPicks = picks
+      }
+      return
+    }
+
+    const mon = pokemon[index]
+
+    remainingStats.forEach((statKey) => {
+      const stat = STATS.find((item) => item.key === statKey)
+      const value = Number(mon.stats?.[statKey] ?? 0)
+      search(
+        index + 1,
+        remainingStats.filter((key) => key !== statKey),
+        total + value,
+        [
+          ...picks,
+          {
+            pokemonId: mon.id,
+            pokemonName: mon.name,
+            sprite: mon.sprite,
+            fallbackSprite: mon.fallbackSprite,
+            isMega: mon.isMega,
+            statKey,
+            statLabel: stat.label,
+            value,
+          },
+        ],
+      )
+    })
+  }
+
+  search(0, STATS.map((stat) => stat.key), 0, [])
+  return { score: bestScore, picks: bestPicks }
+}
+
 export default function Statle({ onComplete }) {
   const [generation, setGeneration] = useState('ALL')
   const [megaMode, setMegaMode] = useState('NONE')
@@ -339,6 +384,7 @@ export default function Statle({ onComplete }) {
   const [spriteMode, setSpriteMode] = useState('artwork')
   const [revealedStat, setRevealedStat] = useState(null)
   const [pendingResult, setPendingResult] = useState(null)
+  const [runPokemon, setRunPokemon] = useState([])
   const [message, setMessage] = useState('Pick one hidden stat from each Pokémon. Every stat can be claimed once.')
 
   const usedRefs = useRef(new Set())
@@ -352,6 +398,14 @@ export default function Statle({ onComplete }) {
   )
   const round = Math.min(Object.keys(claimed).length + 1, 6)
   const medal = medalFor(score)
+  const optimalResult = useMemo(
+    () => bestPossibleAssignment(runPokemon),
+    [runPokemon],
+  )
+  const actualPicks = useMemo(
+    () => STATS.map((stat) => claimed[stat.key]).filter(Boolean),
+    [claimed],
+  )
 
   async function loadNext(gen = generation, mode = megaMode, attempt = 0) {
     const ref = randomPokemonRef(gen, mode, usedRefs.current)
@@ -397,6 +451,7 @@ export default function Statle({ onComplete }) {
     setError('')
     setRevealedStat(null)
     setPendingResult(null)
+    setRunPokemon([])
     setMessage('Pick one hidden stat from each Pokémon. Every stat can be claimed once.')
     loadNext(gen, mode)
   }
@@ -447,8 +502,21 @@ export default function Statle({ onComplete }) {
       },
     }
 
+    const nextRunPokemon = [
+      ...runPokemon,
+      {
+        id: current.id,
+        name: current.name,
+        sprite: current.sprite,
+        fallbackSprite: current.fallbackSprite,
+        isMega: current.isMega,
+        stats: current.stats,
+      },
+    ]
+
     setRevealedStat({ key: statKey, label: statMeta.label, value })
     setClaimed(nextClaimed)
+    setRunPokemon(nextRunPokemon)
 
     const nextScore = Object.values(nextClaimed).reduce((sum, item) => sum + item.value, 0)
     const isFinal = Object.keys(nextClaimed).length === STATS.length
@@ -717,6 +785,96 @@ export default function Statle({ onComplete }) {
               </div>
             )}
           </>
+        ) : status !== 'playing' && optimalResult ? (
+          <div className="statle-results">
+            <div className="statle-results-head">
+              <div>
+                <span className="micro">ROUND RESULT</span>
+                <h3>How close was the run?</h3>
+              </div>
+              <span className={`statle-result-grade ${status}`}>
+                {status === 'won' ? 'TARGET CLEARED' : 'RUN COMPLETE'}
+              </span>
+            </div>
+
+            <section className="statle-result-card actual">
+              <div className="statle-result-title">
+                <span>Your Final Score</span>
+                <strong>{score}</strong>
+              </div>
+
+              <div className="statle-result-grid">
+                {actualPicks.map((pick, index) => (
+                  <div className="statle-result-pick" key={`actual-${pick.pokemonId}-${index}`}>
+                    <div className="statle-result-sprite">
+                      <img
+                        src={pick.sprite}
+                        alt={pick.pokemonName}
+                        onError={(event) => {
+                          if (pick.fallbackSprite && event.currentTarget.src !== pick.fallbackSprite) {
+                            event.currentTarget.src = pick.fallbackSprite
+                          }
+                        }}
+                      />
+                      {pick.isMega && <span className="mega-dot">M</span>}
+                    </div>
+                    <strong>{pick.statLabel}: {pick.value}</strong>
+                    <small>{pick.pokemonName}</small>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section className="statle-result-card optimal">
+              <div className="statle-result-title">
+                <span>Best Possible Score</span>
+                <strong>{optimalResult.score}</strong>
+              </div>
+
+              <div className="statle-result-grid">
+                {optimalResult.picks.map((pick, index) => (
+                  <div className="statle-result-pick" key={`optimal-${pick.pokemonId}-${index}`}>
+                    <div className="statle-result-sprite">
+                      <img
+                        src={pick.sprite}
+                        alt={pick.pokemonName}
+                        onError={(event) => {
+                          if (pick.fallbackSprite && event.currentTarget.src !== pick.fallbackSprite) {
+                            event.currentTarget.src = pick.fallbackSprite
+                          }
+                        }}
+                      />
+                      {pick.isMega && <span className="mega-dot">M</span>}
+                    </div>
+                    <strong>{pick.statLabel}: {pick.value}</strong>
+                    <small>{pick.pokemonName}</small>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <div className="statle-result-summary">
+              <div>
+                <span>POINTS LEFT</span>
+                <strong>{Math.max(0, optimalResult.score - score)}</strong>
+              </div>
+              <div>
+                <span>EFFICIENCY</span>
+                <strong>
+                  {optimalResult.score > 0 ? Math.round((score / optimalResult.score) * 100) : 100}%
+                </strong>
+              </div>
+              <div>
+                <span>PERFECT?</span>
+                <strong>{score === optimalResult.score ? 'YES' : 'NO'}</strong>
+              </div>
+            </div>
+
+            <button className="primary-btn statle-play-again" onClick={() => reset(generation, megaMode)}>
+              Play again
+              <span aria-hidden="true">↗</span>
+            </button>
+          </div>
         ) : (
           <div className="statle-finished">
             <strong>{score} BST</strong>
