@@ -2323,9 +2323,88 @@ main { padding: 72px 0 64px; }
   transform: scale(.95);
 }
 
-.statle-stat-button.used {
+.statle-stat-button.used:not(.revealed) {
   opacity: .3;
   cursor: default;
+}
+
+.statle-stat-button.revealed {
+  cursor: default;
+  border-color: #3a4350;
+  background: #121820;
+  animation: statleReveal .3s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.statle-stat-button.revealed:nth-child(2) { animation-delay: 35ms; }
+.statle-stat-button.revealed:nth-child(3) { animation-delay: 70ms; }
+.statle-stat-button.revealed:nth-child(4) { animation-delay: 105ms; }
+.statle-stat-button.revealed:nth-child(5) { animation-delay: 140ms; }
+.statle-stat-button.revealed:nth-child(6) { animation-delay: 175ms; }
+
+.statle-stat-button.revealed strong {
+  color: #dce3ec;
+}
+
+.statle-stat-button.revealed.used:not(.chosen) {
+  opacity: .48;
+}
+
+.statle-stat-button.chosen {
+  opacity: 1 !important;
+  border-color: #9b7b32;
+  background:
+    radial-gradient(circle at 50% 0, rgba(255,204,85,.12), transparent 65%),
+    #19170f;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,204,85,.06),
+    0 0 22px rgba(255,204,85,.045);
+}
+
+.statle-stat-button.chosen strong,
+.statle-stat-button.chosen small {
+  color: #ffe08a;
+}
+
+@keyframes statleReveal {
+  from { opacity: .25; transform: translateY(5px) scale(.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.statle-reveal-actions {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid #3c3423;
+  border-radius: 12px;
+  background:
+    linear-gradient(90deg, rgba(255,204,85,.06), transparent 55%),
+    #10151b;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  animation: revealActionIn .28s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.statle-reveal-actions > div {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.statle-reveal-actions strong {
+  color: #d9e0e9;
+  font-size: .8rem;
+}
+
+.statle-reveal-actions .primary-btn {
+  min-width: 160px;
+  min-height: 44px;
+  flex: 0 0 auto;
+}
+
+@keyframes revealActionIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .statle-finished strong {
@@ -3033,6 +3112,15 @@ footer {
 
   .statle-stat-button {
     min-height: 82px;
+  }
+
+  .statle-reveal-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .statle-reveal-actions .primary-btn {
+    width: 100%;
   }
 
   .reaction-zone {
