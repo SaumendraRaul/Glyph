@@ -14,13 +14,64 @@ const GENERATIONS = [
   { id: 9, label: 'GEN 9', start: 906, end: 1025 },
 ]
 
+const MEGA_FORMS = [
+  { slug: 'venusaur-mega', baseId: 3 },
+  { slug: 'charizard-mega-x', baseId: 6 },
+  { slug: 'charizard-mega-y', baseId: 6 },
+  { slug: 'blastoise-mega', baseId: 9 },
+  { slug: 'beedrill-mega', baseId: 15 },
+  { slug: 'pidgeot-mega', baseId: 18 },
+  { slug: 'alakazam-mega', baseId: 65 },
+  { slug: 'slowbro-mega', baseId: 80 },
+  { slug: 'gengar-mega', baseId: 94 },
+  { slug: 'kangaskhan-mega', baseId: 115 },
+  { slug: 'pinsir-mega', baseId: 127 },
+  { slug: 'gyarados-mega', baseId: 130 },
+  { slug: 'aerodactyl-mega', baseId: 142 },
+  { slug: 'mewtwo-mega-x', baseId: 150 },
+  { slug: 'mewtwo-mega-y', baseId: 150 },
+  { slug: 'ampharos-mega', baseId: 181 },
+  { slug: 'steelix-mega', baseId: 208 },
+  { slug: 'scizor-mega', baseId: 212 },
+  { slug: 'heracross-mega', baseId: 214 },
+  { slug: 'houndoom-mega', baseId: 229 },
+  { slug: 'tyranitar-mega', baseId: 248 },
+  { slug: 'sceptile-mega', baseId: 254 },
+  { slug: 'blaziken-mega', baseId: 257 },
+  { slug: 'swampert-mega', baseId: 260 },
+  { slug: 'gardevoir-mega', baseId: 282 },
+  { slug: 'sableye-mega', baseId: 302 },
+  { slug: 'mawile-mega', baseId: 303 },
+  { slug: 'aggron-mega', baseId: 306 },
+  { slug: 'medicham-mega', baseId: 308 },
+  { slug: 'manectric-mega', baseId: 310 },
+  { slug: 'sharpedo-mega', baseId: 319 },
+  { slug: 'camerupt-mega', baseId: 323 },
+  { slug: 'altaria-mega', baseId: 334 },
+  { slug: 'banette-mega', baseId: 354 },
+  { slug: 'absol-mega', baseId: 359 },
+  { slug: 'glalie-mega', baseId: 362 },
+  { slug: 'salamence-mega', baseId: 373 },
+  { slug: 'metagross-mega', baseId: 376 },
+  { slug: 'latias-mega', baseId: 380 },
+  { slug: 'latios-mega', baseId: 381 },
+  { slug: 'rayquaza-mega', baseId: 384 },
+  { slug: 'lopunny-mega', baseId: 428 },
+  { slug: 'garchomp-mega', baseId: 445 },
+  { slug: 'lucario-mega', baseId: 448 },
+  { slug: 'abomasnow-mega', baseId: 460 },
+  { slug: 'gallade-mega', baseId: 475 },
+  { slug: 'audino-mega', baseId: 531 },
+  { slug: 'diancie-mega', baseId: 719 },
+]
+
 const STATS = [
-  { key: 'hp', label: 'HP', api: 'hp' },
-  { key: 'attack', label: 'ATK', api: 'attack' },
-  { key: 'defense', label: 'DEF', api: 'defense' },
-  { key: 'specialAttack', label: 'SpA', api: 'special-attack' },
-  { key: 'specialDefense', label: 'SpD', api: 'special-defense' },
-  { key: 'speed', label: 'SPE', api: 'speed' },
+  { key: 'hp', label: 'HP' },
+  { key: 'attack', label: 'ATK' },
+  { key: 'defense', label: 'DEF' },
+  { key: 'specialAttack', label: 'SpA' },
+  { key: 'specialDefense', label: 'SpD' },
+  { key: 'speed', label: 'SPE' },
 ]
 
 const pokemonCache = new Map()
@@ -32,37 +83,77 @@ function prettyName(value) {
     .join(' ')
 }
 
+function prettyPokemonName(value) {
+  const parts = value.split('-')
+  const megaIndex = parts.indexOf('mega')
+
+  if (megaIndex > 0) {
+    const base = prettyName(parts.slice(0, megaIndex).join('-'))
+    const suffix = prettyName(parts.slice(megaIndex + 1).join('-'))
+    return `Mega ${base}${suffix ? ` ${suffix}` : ''}`
+  }
+
+  return prettyName(value)
+}
+
 function selectedRange(generation) {
   if (generation === 'ALL') return { start: 1, end: 1025 }
   return GENERATIONS.find((item) => String(item.id) === String(generation)) || GENERATIONS[0]
 }
 
-function randomPokemonId(generation, used) {
+function refsForFilters(generation, megaMode) {
   const range = selectedRange(generation)
-  const span = range.end - range.start + 1
-  if (used.size >= span) return null
+  const baseRefs = Array.from(
+    { length: range.end - range.start + 1 },
+    (_, index) => {
+      const id = range.start + index
+      return {
+        key: `base:${id}`,
+        query: id,
+        baseId: id,
+        isMega: false,
+      }
+    },
+  )
 
-  let id = range.start + Math.floor(Math.random() * span)
-  let guard = 0
-  while (used.has(id) && guard < 2000) {
-    id = range.start + Math.floor(Math.random() * span)
-    guard += 1
-  }
-  return id
+  const megaRefs = MEGA_FORMS
+    .filter((item) => item.baseId >= range.start && item.baseId <= range.end)
+    .map((item) => ({
+      key: `mega:${item.slug}`,
+      query: item.slug,
+      baseId: item.baseId,
+      isMega: true,
+    }))
+
+  if (megaMode === 'ONLY') return megaRefs
+  if (megaMode === 'NONE') return baseRefs
+  return [...baseRefs, ...megaRefs]
 }
 
-async function fetchPokemon(id) {
-  if (pokemonCache.has(id)) return pokemonCache.get(id)
+function generationHasChoices(generation, megaMode) {
+  return refsForFilters(generation, megaMode).length > 0
+}
 
-  const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`)
+function randomPokemonRef(generation, megaMode, used) {
+  const pool = refsForFilters(generation, megaMode).filter((item) => !used.has(item.key))
+  if (!pool.length) return null
+  return pool[Math.floor(Math.random() * pool.length)]
+}
+
+async function fetchPokemon(ref) {
+  if (pokemonCache.has(ref.key)) return pokemonCache.get(ref.key)
+
+  const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${ref.query}`)
   if (!response.ok) throw new Error(`PokéAPI returned ${response.status}`)
 
   const data = await response.json()
   const statMap = Object.fromEntries(data.stats.map((entry) => [entry.stat.name, entry.base_stat]))
 
   const pokemon = {
-    id: data.id,
-    name: prettyName(data.name),
+    id: ref.baseId,
+    formId: data.id,
+    isMega: ref.isMega,
+    name: prettyPokemonName(data.name),
     types: data.types.map((entry) => prettyName(entry.type.name)),
     artwork:
       data.sprites?.other?.['official-artwork']?.front_default ||
@@ -83,7 +174,7 @@ async function fetchPokemon(id) {
     },
   }
 
-  pokemonCache.set(id, pokemon)
+  pokemonCache.set(ref.key, pokemon)
   return pokemon
 }
 
@@ -96,6 +187,7 @@ function medalFor(score) {
 
 export default function Statle({ onComplete }) {
   const [generation, setGeneration] = useState('ALL')
+  const [megaMode, setMegaMode] = useState('NONE')
   const [current, setCurrent] = useState(null)
   const [claimed, setClaimed] = useState({})
   const [loading, setLoading] = useState(true)
@@ -105,7 +197,7 @@ export default function Statle({ onComplete }) {
   const [revealedStat, setRevealedStat] = useState(null)
   const [message, setMessage] = useState('Pick one hidden stat from each Pokémon. Every stat can be claimed once.')
 
-  const usedIds = useRef(new Set())
+  const usedRefs = useRef(new Set())
   const requestId = useRef(0)
   const completed = useRef(false)
 
@@ -116,10 +208,10 @@ export default function Statle({ onComplete }) {
   const round = Math.min(Object.keys(claimed).length + 1, 6)
   const medal = medalFor(score)
 
-  async function loadNext(gen = generation) {
-    const id = randomPokemonId(gen, usedIds.current)
-    if (!id) {
-      setError('No unused Pokémon remain in this pool.')
+  async function loadNext(gen = generation, mode = megaMode) {
+    const ref = randomPokemonRef(gen, mode, usedRefs.current)
+    if (!ref) {
+      setError('No unused Pokémon match these filters.')
       setLoading(false)
       return
     }
@@ -129,9 +221,9 @@ export default function Statle({ onComplete }) {
     setError('')
 
     try {
-      const pokemon = await fetchPokemon(id)
+      const pokemon = await fetchPokemon(ref)
       if (token !== requestId.current) return
-      usedIds.current.add(id)
+      usedRefs.current.add(ref.key)
       setCurrent(pokemon)
     } catch (err) {
       if (token !== requestId.current) return
@@ -141,9 +233,9 @@ export default function Statle({ onComplete }) {
     }
   }
 
-  function reset(gen = generation) {
+  function reset(gen = generation, mode = megaMode) {
     requestId.current += 1
-    usedIds.current = new Set()
+    usedRefs.current = new Set()
     completed.current = false
     setClaimed({})
     setCurrent(null)
@@ -151,11 +243,11 @@ export default function Statle({ onComplete }) {
     setError('')
     setRevealedStat(null)
     setMessage('Pick one hidden stat from each Pokémon. Every stat can be claimed once.')
-    loadNext(gen)
+    loadNext(gen, mode)
   }
 
   useEffect(() => {
-    reset('ALL')
+    reset('ALL', 'NONE')
     return () => {
       requestId.current += 1
     }
@@ -165,11 +257,21 @@ export default function Statle({ onComplete }) {
 
   function changeGeneration(next) {
     setGeneration(next)
-    reset(next)
+    reset(next, megaMode)
+  }
+
+  function changeMegaMode(next) {
+    let nextGeneration = generation
+    if (!generationHasChoices(nextGeneration, next)) {
+      nextGeneration = 'ALL'
+      setGeneration('ALL')
+    }
+    setMegaMode(next)
+    reset(nextGeneration, next)
   }
 
   function retryLoad() {
-    loadNext(generation)
+    loadNext(generation, megaMode)
   }
 
   function claim(statKey) {
@@ -185,6 +287,7 @@ export default function Statle({ onComplete }) {
         pokemonName: current.name,
         sprite: current.sprite,
         statLabel: statMeta.label,
+        isMega: current.isMega,
       },
     }
 
@@ -210,6 +313,7 @@ export default function Statle({ onComplete }) {
           bonusXp: won ? Math.min(40, Math.max(10, Math.floor((nextScore - TARGET) / 5) + 20)) : 0,
         })
       }
+
       window.setTimeout(() => {
         setCurrent(null)
         setRevealedStat(null)
@@ -221,7 +325,7 @@ export default function Statle({ onComplete }) {
     window.setTimeout(() => {
       setCurrent(null)
       setRevealedStat(null)
-      loadNext(generation)
+      loadNext(generation, megaMode)
     }, 850)
   }
 
@@ -243,11 +347,37 @@ export default function Statle({ onComplete }) {
           >
             <option value="ALL">All generations</option>
             {GENERATIONS.map((item) => (
-              <option value={item.id} key={item.id}>{item.label}</option>
+              <option
+                value={item.id}
+                key={item.id}
+                disabled={!generationHasChoices(item.id, megaMode)}
+              >
+                {item.label}
+              </option>
             ))}
           </select>
-          <button className="secondary-btn" onClick={() => reset(generation)}>Restart</button>
+
+          <select
+            className="statle-select"
+            value={megaMode}
+            onChange={(event) => changeMegaMode(event.target.value)}
+            aria-label="Mega Evolution filter"
+          >
+            <option value="ALL">All forms</option>
+            <option value="ONLY">Only Megas</option>
+            <option value="NONE">No Megas</option>
+          </select>
+
+          <button className="secondary-btn" onClick={() => reset(generation, megaMode)}>Restart</button>
         </div>
+      </div>
+
+      <div className="statle-filter-summary">
+        <span>{generation === 'ALL' ? 'GEN 1–9' : `GEN ${generation}`}</span>
+        <span>•</span>
+        <strong>
+          {megaMode === 'ONLY' ? 'MEGAS ONLY' : megaMode === 'NONE' ? 'NO MEGAS' : 'ALL FORMS'}
+        </strong>
       </div>
 
       <div className="statle-board">
@@ -258,7 +388,10 @@ export default function Statle({ onComplete }) {
               <span className="micro">{stat.label}</span>
               {pick ? (
                 <>
-                  <img src={pick.sprite} alt="" />
+                  <div className="statle-slot-sprite">
+                    <img src={pick.sprite} alt="" />
+                    {pick.isMega && <span className="mega-dot" title="Mega Evolution">M</span>}
+                  </div>
                   <strong>{pick.value}</strong>
                   <small>{pick.pokemonName}</small>
                 </>
@@ -319,16 +452,19 @@ export default function Statle({ onComplete }) {
                 </button>
               </div>
 
-              <div className={`statle-pokemon-image ${spriteMode}`}>
+              <div className={`statle-pokemon-image ${spriteMode} ${current.isMega ? 'mega' : ''}`}>
                 <img
                   src={spriteMode === 'artwork' ? current.artwork : current.sprite}
                   alt={current.name}
                   loading="eager"
                 />
+                {current.isMega && <span className="statle-mega-badge">MEGA</span>}
               </div>
 
               <div className="statle-pokemon-info">
-                <span className="micro">#{String(current.id).padStart(4, '0')}</span>
+                <span className="micro">
+                  #{String(current.id).padStart(4, '0')} {current.isMega ? '• MEGA FORM' : ''}
+                </span>
                 <h3>{current.name}</h3>
                 <div className="statle-types">
                   {current.types.map((type) => <span key={type}>{type}</span>)}
@@ -366,7 +502,7 @@ export default function Statle({ onComplete }) {
           <div className="statle-finished">
             <strong>{score} BST</strong>
             <span>{message}</span>
-            <button className="primary-btn" onClick={() => reset(generation)}>Play again ↗</button>
+            <button className="primary-btn" onClick={() => reset(generation, megaMode)}>Play again ↗</button>
           </div>
         )}
       </section>
@@ -374,7 +510,7 @@ export default function Statle({ onComplete }) {
       <div className={`game-message ${status}`}>{message}</div>
 
       <div className="statle-footnote">
-        Stats stay hidden until selected. Pokémon data and sprites load from PokéAPI. Generation filters use National Pokédex ranges through #1025.
+        Stats stay hidden until selected. Mega filters use Mega-form entries available through PokéAPI.
       </div>
     </div>
   )
