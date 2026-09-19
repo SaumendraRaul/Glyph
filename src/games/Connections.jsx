@@ -1,31 +1,97 @@
 import { useMemo, useState } from 'react'
 
 const PUZZLES = [
-  [
-    { title: 'WEB BROWSERS', words: ['CHROME', 'SAFARI', 'EDGE', 'FIREFOX'] },
-    { title: 'CARD SUITS', words: ['HEART', 'SPADE', 'CLUB', 'DIAMOND'] },
-    { title: 'WAYS TO MOVE FAST', words: ['SPRINT', 'DASH', 'RUSH', 'BOLT'] },
-    { title: 'CAN FOLLOW “STAR”', words: ['FISH', 'LIGHT', 'DUST', 'SHIP'] },
-  ],
-  [
-    { title: 'PROGRAMMING LANGUAGES', words: ['PYTHON', 'RUST', 'SWIFT', 'RUBY'] },
-    { title: 'COFFEE ORDERS', words: ['LATTE', 'MOCHA', 'ESPRESSO', 'CAPPUCCINO'] },
-    { title: 'BOARD GAME PIECES', words: ['PAWN', 'TOKEN', 'DIE', 'MEEPLE'] },
-    { title: 'CAN FOLLOW “SPACE”', words: ['BAR', 'SHIP', 'SUIT', 'WALK'] },
-  ],
-  [
-    { title: 'WEATHER', words: ['RAIN', 'HAIL', 'SNOW', 'SLEET'] },
-    { title: 'PHONE ACTIONS', words: ['CALL', 'TEXT', 'SWIPE', 'SCROLL'] },
-    { title: 'MUSIC TERMS', words: ['BEAT', 'NOTE', 'CHORD', 'TEMPO'] },
-    { title: 'CAN FOLLOW “BLUE”', words: ['BERRY', 'TOOTH', 'PRINT', 'BIRD'] },
-  ],
-  [
-    { title: 'GAME GENRES', words: ['RACING', 'PUZZLE', 'HORROR', 'SPORTS'] },
-    { title: 'SHAPES', words: ['CIRCLE', 'SQUARE', 'OVAL', 'TRIANGLE'] },
-    { title: 'THINGS WITH KEYS', words: ['PIANO', 'LOCK', 'KEYBOARD', 'MAP'] },
-    { title: 'CAN FOLLOW “BLACK”', words: ['JACK', 'OUT', 'BIRD', 'BOARD'] },
-  ],
+  {
+    id: 'general-easy',
+    theme: 'GENERAL',
+    difficulty: 'EASY',
+    groups: [
+      { title: 'WEATHER', words: ['RAIN', 'HAIL', 'SNOW', 'SLEET'] },
+      { title: 'SHAPES', words: ['CIRCLE', 'SQUARE', 'OVAL', 'TRIANGLE'] },
+      { title: 'CARD SUITS', words: ['HEART', 'SPADE', 'CLUB', 'DIAMOND'] },
+      { title: 'MUSIC TERMS', words: ['BEAT', 'NOTE', 'CHORD', 'TEMPO'] },
+    ],
+  },
+  {
+    id: 'general-hard',
+    theme: 'GENERAL',
+    difficulty: 'HARD',
+    groups: [
+      { title: 'BOARD GAME PIECES', words: ['PAWN', 'TOKEN', 'DIE', 'MEEPLE'] },
+      { title: 'THINGS WITH KEYS', words: ['PIANO', 'LOCK', 'KEYBOARD', 'MAP'] },
+      { title: 'WAYS TO MOVE FAST', words: ['SPRINT', 'DASH', 'RUSH', 'BOLT'] },
+      { title: 'CAN FOLLOW “STAR”', words: ['FISH', 'LIGHT', 'DUST', 'SHIP'] },
+    ],
+  },
+  {
+    id: 'tech-easy',
+    theme: 'TECH',
+    difficulty: 'EASY',
+    groups: [
+      { title: 'WEB BROWSERS', words: ['CHROME', 'SAFARI', 'EDGE', 'FIREFOX'] },
+      { title: 'PROGRAMMING LANGUAGES', words: ['PYTHON', 'RUST', 'SWIFT', 'RUBY'] },
+      { title: 'PHONE ACTIONS', words: ['CALL', 'TEXT', 'SWIPE', 'SCROLL'] },
+      { title: 'COMPUTER STORAGE', words: ['SSD', 'HDD', 'CACHE', 'RAM'] },
+    ],
+  },
+  {
+    id: 'tech-hard',
+    theme: 'TECH',
+    difficulty: 'HARD',
+    groups: [
+      { title: 'DATABASES', words: ['POSTGRES', 'MYSQL', 'MONGODB', 'SQLITE'] },
+      { title: 'WEB PROTOCOLS', words: ['HTTP', 'HTTPS', 'FTP', 'SSH'] },
+      { title: 'VERSION CONTROL WORDS', words: ['COMMIT', 'BRANCH', 'MERGE', 'CLONE'] },
+      { title: 'CAN FOLLOW “CLOUD”', words: ['NINE', 'BURST', 'BASE', 'FRONT'] },
+    ],
+  },
+  {
+    id: 'everyday-easy',
+    theme: 'EVERYDAY',
+    difficulty: 'EASY',
+    groups: [
+      { title: 'COFFEE ORDERS', words: ['LATTE', 'MOCHA', 'ESPRESSO', 'CAPPUCCINO'] },
+      { title: 'KITCHEN ITEMS', words: ['WHISK', 'PAN', 'PLATE', 'KETTLE'] },
+      { title: 'CLOTHING', words: ['SHIRT', 'SOCK', 'JACKET', 'SCARF'] },
+      { title: 'ROOMS IN A HOME', words: ['KITCHEN', 'BEDROOM', 'GARAGE', 'ATTIC'] },
+    ],
+  },
+  {
+    id: 'everyday-hard',
+    theme: 'EVERYDAY',
+    difficulty: 'HARD',
+    groups: [
+      { title: 'CAN FOLLOW “BLACK”', words: ['JACK', 'OUT', 'BIRD', 'BOARD'] },
+      { title: 'CAN FOLLOW “BLUE”', words: ['BERRY', 'TOOTH', 'PRINT', 'BIRD'] },
+      { title: 'THINGS YOU CAN BREAK', words: ['PROMISE', 'RECORD', 'GLASS', 'SILENCE'] },
+      { title: 'THINGS WITH A RING', words: ['PHONE', 'TREE', 'BOXING', 'SATURN'] },
+    ],
+  },
+  {
+    id: 'wordplay-easy',
+    theme: 'WORDPLAY',
+    difficulty: 'EASY',
+    groups: [
+      { title: 'CAN FOLLOW “SPACE”', words: ['BAR', 'SHIP', 'SUIT', 'WALK'] },
+      { title: 'CAN FOLLOW “SUN”', words: ['FLOWER', 'LIGHT', 'RISE', 'SCREEN'] },
+      { title: 'CAN FOLLOW “BOOK”', words: ['MARK', 'CASE', 'WORM', 'SHELF'] },
+      { title: 'CAN FOLLOW “RAIN”', words: ['BOW', 'DROP', 'FALL', 'COAT'] },
+    ],
+  },
+  {
+    id: 'wordplay-hard',
+    theme: 'WORDPLAY',
+    difficulty: 'HARD',
+    groups: [
+      { title: 'CAN FOLLOW “HEAD”', words: ['LINE', 'LIGHT', 'PHONE', 'SPACE'] },
+      { title: 'CAN FOLLOW “BACK”', words: ['PACK', 'SPACE', 'BONE', 'DROP'] },
+      { title: 'CAN FOLLOW “HAND”', words: ['SHAKE', 'BOOK', 'BAG', 'MADE'] },
+      { title: 'CAN FOLLOW “SIDE”', words: ['WALK', 'KICK', 'BAR', 'BURN'] },
+    ],
+  },
 ]
+
+const THEMES = ['ALL', 'GENERAL', 'TECH', 'EVERYDAY', 'WORDPLAY']
 
 function shuffle(values) {
   const next = [...values]
@@ -36,29 +102,66 @@ function shuffle(values) {
   return next
 }
 
-function randomPuzzle() {
-  const groups = PUZZLES[Math.floor(Math.random() * PUZZLES.length)]
+function matchesFilters(puzzle, theme, difficulty) {
+  return (theme === 'ALL' || puzzle.theme === theme) &&
+    (difficulty === 'ALL' || puzzle.difficulty === difficulty)
+}
+
+function randomPuzzle(theme = 'ALL', difficulty = 'ALL', previousId = null) {
+  let candidates = PUZZLES.filter((puzzle) => matchesFilters(puzzle, theme, difficulty))
+  if (!candidates.length) candidates = PUZZLES
+
+  const alternatives = candidates.filter((puzzle) => puzzle.id !== previousId)
+  const pool = alternatives.length ? alternatives : candidates
+  const picked = pool[Math.floor(Math.random() * pool.length)]
+
   return {
-    groups,
-    words: shuffle(groups.flatMap((group) => group.words)),
+    ...picked,
+    words: shuffle(picked.groups.flatMap((group) => group.words)),
   }
 }
 
 export default function Connections({ onComplete }) {
-  const [puzzle, setPuzzle] = useState(randomPuzzle)
+  const [theme, setTheme] = useState('ALL')
+  const [difficulty, setDifficulty] = useState('ALL')
+  const [puzzle, setPuzzle] = useState(() => randomPuzzle())
   const [selected, setSelected] = useState([])
   const [solved, setSolved] = useState([])
   const [mistakes, setMistakes] = useState(0)
   const [status, setStatus] = useState('playing')
   const [message, setMessage] = useState('Select four words that belong together.')
 
+  const availableDifficulties = useMemo(() => {
+    const values = new Set(
+      PUZZLES
+        .filter((item) => theme === 'ALL' || item.theme === theme)
+        .map((item) => item.difficulty),
+    )
+    return ['ALL', ...['EASY', 'MEDIUM', 'HARD'].filter((item) => values.has(item))]
+  }, [theme])
+
+  const matchCount = useMemo(
+    () => PUZZLES.filter((item) => matchesFilters(item, theme, difficulty)).length,
+    [theme, difficulty],
+  )
+
   const remaining = useMemo(
     () => puzzle.words.filter((word) => !solved.some((group) => group.words.includes(word))),
     [puzzle, solved],
   )
 
+  function chooseTheme(nextTheme) {
+    setTheme(nextTheme)
+    if (
+      difficulty !== 'ALL' &&
+      !PUZZLES.some((item) => matchesFilters(item, nextTheme, difficulty))
+    ) {
+      setDifficulty('ALL')
+    }
+  }
+
   function reset() {
-    setPuzzle(randomPuzzle())
+    setPuzzle((current) => randomPuzzle(theme, difficulty, current.id))
     setSelected([])
     setSolved([])
     setMistakes(0)
@@ -140,6 +243,46 @@ export default function Connections({ onComplete }) {
           <div><span className="micro">MISTAKES</span><strong>{mistakes}/4</strong></div>
         </div>
         <button className="secondary-btn" onClick={reset}>New puzzle</button>
+      </div>
+
+      <div className="connection-filters">
+        <div className="filter-row">
+          <span className="filter-label">THEME</span>
+          <div className="filter-chips">
+            {THEMES.map((item) => (
+              <button
+                className={`filter-chip ${theme === item ? 'active' : ''}`}
+                key={item}
+                onClick={() => chooseTheme(item)}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="filter-row">
+          <span className="filter-label">DIFFICULTY</span>
+          <div className="filter-chips">
+            {availableDifficulties.map((item) => (
+              <button
+                className={`filter-chip ${difficulty === item ? 'active' : ''}`}
+                key={item}
+                onClick={() => setDifficulty(item)}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="filter-summary">
+          Next puzzle: <strong>{theme === 'ALL' ? 'ANY THEME' : theme}</strong>
+          <span>•</span>
+          <strong>{difficulty === 'ALL' ? 'ANY DIFFICULTY' : difficulty}</strong>
+          <span>•</span>
+          {matchCount} set{matchCount === 1 ? '' : 's'}
+        </div>
       </div>
 
       <div className="connections-solved">
