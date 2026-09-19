@@ -2407,6 +2407,185 @@ main { padding: 72px 0 64px; }
   to { opacity: 1; transform: translateY(0); }
 }
 
+
+.statle-results {
+  min-height: 356px;
+  display: grid;
+  gap: 14px;
+  animation: viewEnter .3s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.statle-results-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.statle-results-head > div {
+  display: grid;
+  gap: 4px;
+}
+
+.statle-results-head h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  letter-spacing: -.025em;
+}
+
+.statle-result-grade {
+  min-height: 30px;
+  padding: 0 9px;
+  border: 1px solid #3a424f;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  color: #7e8897;
+  font: 600 .52rem 'DM Mono', monospace;
+  letter-spacing: .08em;
+}
+
+.statle-result-grade.won {
+  color: #9ff0a5;
+  border-color: #42674a;
+  background: rgba(89,170,99,.06);
+}
+
+.statle-result-card {
+  padding: 14px;
+  border: 1px solid #313944;
+  border-radius: 15px;
+  background:
+    radial-gradient(circle at 100% 0, rgba(255,255,255,.025), transparent 34%),
+    #0f141a;
+}
+
+.statle-result-card.optimal {
+  border-color: #5f4d28;
+  background:
+    radial-gradient(circle at 100% 0, rgba(255,204,85,.07), transparent 38%),
+    #11140f;
+}
+
+.statle-result-title {
+  margin-bottom: 12px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.statle-result-title span {
+  color: #dce2ea;
+  font-size: .92rem;
+  font-weight: 700;
+}
+
+.statle-result-title strong {
+  color: #e7edf5;
+  font-size: 1.85rem;
+  line-height: 1;
+  letter-spacing: -.055em;
+}
+
+.statle-result-card.optimal .statle-result-title strong {
+  color: var(--game);
+}
+
+.statle-result-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.statle-result-pick {
+  min-width: 0;
+  min-height: 118px;
+  padding: 9px 7px;
+  border: 1px solid #29313b;
+  border-radius: 11px;
+  background: #0c1117;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 5px;
+  text-align: center;
+}
+
+.statle-result-card.optimal .statle-result-pick {
+  border-color: #383425;
+  background: #0e120d;
+}
+
+.statle-result-sprite {
+  position: relative;
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+}
+
+.statle-result-sprite img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: auto;
+}
+
+.statle-result-sprite .mega-dot {
+  right: -4px;
+  top: -4px;
+}
+
+.statle-result-pick strong {
+  color: #edf1f6;
+  font: 700 .67rem 'DM Mono', monospace;
+}
+
+.statle-result-pick small {
+  max-width: 100%;
+  color: #687281;
+  font-size: .55rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.statle-result-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.statle-result-summary > div {
+  min-height: 66px;
+  padding: 10px;
+  border: 1px solid #29313b;
+  border-radius: 10px;
+  background: #10151b;
+  display: grid;
+  align-content: center;
+  gap: 4px;
+}
+
+.statle-result-summary span {
+  color: #5f6978;
+  font: 500 .5rem 'DM Mono', monospace;
+  letter-spacing: .08em;
+}
+
+.statle-result-summary strong {
+  color: #dfe5ed;
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.statle-play-again {
+  width: 100%;
+  justify-content: space-between;
+}
+
+
 .statle-finished strong {
   color: var(--game);
   font-size: clamp(2.7rem, 9vw, 5rem);
@@ -3121,6 +3300,23 @@ footer {
 
   .statle-reveal-actions .primary-btn {
     width: 100%;
+  }
+
+  .statle-results-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .statle-result-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .statle-result-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .statle-result-pick {
+    min-height: 108px;
   }
 
   .reaction-zone {
