@@ -384,6 +384,7 @@ main { padding: 72px 0 64px; }
 .accent-rose { --game: #ff7ca8; }
 .accent-blue { --game: #65a8ff; }
 .accent-poke { --game: #ffd84d; }
+.accent-statle { --game: #ffcc55; }
 
 .game-card-top {
   display: flex;
@@ -1866,6 +1867,411 @@ main { padding: 72px 0 64px; }
 
 
 
+
+/* Statle */
+.statle-preview {
+  padding: 12px 14px;
+  display: grid;
+  grid-template-columns: 58px 1fr;
+  gap: 12px;
+  align-items: center;
+  background:
+    radial-gradient(circle at 15% 50%, rgba(255,204,85,.11), transparent 34%),
+    #0c1016;
+}
+
+.statle-preview-mon {
+  width: 54px;
+  aspect-ratio: 1;
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #69552c;
+  background:
+    linear-gradient(145deg, rgba(255,204,85,.18), rgba(255,255,255,.02)),
+    #171b20;
+  color: #ffdc82;
+  font: 800 .9rem 'DM Mono', monospace;
+}
+
+.statle-preview-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+}
+
+.statle-preview-stats span {
+  min-width: 0;
+  padding: 5px 6px;
+  border: 1px solid #303744;
+  border-radius: 6px;
+  background: #151a21;
+  color: #d9dfe8;
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+  font: 600 .48rem 'DM Mono', monospace;
+}
+
+.statle-preview-stats b {
+  color: #7c8695;
+  font-weight: 500;
+}
+
+.statle-panel {
+  max-width: 820px;
+  margin: 0 auto;
+  overflow: hidden;
+  position: relative;
+}
+
+.statle-panel::before {
+  content: '';
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  top: -160px;
+  right: -100px;
+  border-radius: 50%;
+  background: var(--game);
+  filter: blur(110px);
+  opacity: .07;
+  pointer-events: none;
+}
+
+.statle-toolbar {
+  align-items: center;
+}
+
+.statle-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.statle-select {
+  min-height: 44px;
+  padding: 0 36px 0 12px;
+  border: 1px solid #313946;
+  border-radius: 10px;
+  background: #151a22;
+  color: #e8edf5;
+  font: 600 .7rem 'DM Mono', monospace;
+}
+
+.statle-board {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.statle-slot {
+  min-width: 0;
+  min-height: 126px;
+  padding: 10px 7px;
+  border: 1px solid #29313d;
+  border-radius: 12px;
+  background: #0f141a;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 5px;
+  text-align: center;
+}
+
+.statle-slot.filled {
+  border-color: color-mix(in srgb, var(--game) 35%, #2c3440);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--game) 5%, transparent), transparent),
+    #11161c;
+  animation: statleSlotIn .28s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.statle-slot img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.statle-slot strong {
+  color: #f4f7fb;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.statle-slot small {
+  max-width: 100%;
+  color: #657080;
+  font: 500 .48rem 'DM Mono', monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@keyframes statleSlotIn {
+  from { opacity: .45; transform: translateY(5px) scale(.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.statle-progress-wrap {
+  margin-bottom: 12px;
+}
+
+.statle-progress-copy {
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: #697382;
+  font: 500 .55rem 'DM Mono', monospace;
+  letter-spacing: .06em;
+}
+
+.statle-progress {
+  height: 7px;
+  border-radius: 999px;
+  background: #202630;
+  overflow: hidden;
+}
+
+.statle-progress i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #e6a83c, #ffd86a);
+  box-shadow: 0 0 14px rgba(255,204,85,.22);
+  transition: width .35s cubic-bezier(.2,.8,.2,1);
+}
+
+.statle-medal {
+  margin-bottom: 14px;
+  min-height: 38px;
+  padding: 7px 10px;
+  border: 1px solid #2b323d;
+  border-radius: 10px;
+  background: #10151b;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.statle-medal span {
+  font: 800 .72rem 'DM Mono', monospace;
+  letter-spacing: .12em;
+}
+
+.statle-medal small {
+  color: #5d6776;
+  font: 500 .5rem 'DM Mono', monospace;
+  letter-spacing: .08em;
+}
+
+.statle-medal.gold { border-color: #6f5a27; color: #ffd86a; }
+.statle-medal.silver { border-color: #4f5967; color: #c7d0dd; }
+.statle-medal.bronze { border-color: #624635; color: #d9966f; }
+.statle-medal.training { color: #6f7886; }
+
+.statle-current {
+  min-height: 390px;
+  border: 1px solid #29313c;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 24% 32%, rgba(255,204,85,.06), transparent 32%),
+    #0c1117;
+  padding: 16px;
+}
+
+.statle-loading,
+.statle-error,
+.statle-finished {
+  min-height: 356px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 9px;
+  text-align: center;
+}
+
+.statle-loading small,
+.statle-error span,
+.statle-finished span {
+  color: #7e8898;
+  font-size: .72rem;
+}
+
+.statle-loader {
+  width: 38px;
+  height: 38px;
+  border: 3px solid #303845;
+  border-top-color: var(--game);
+  border-radius: 50%;
+  animation: statleSpin .7s linear infinite;
+}
+
+@keyframes statleSpin {
+  to { transform: rotate(360deg); }
+}
+
+.statle-pokemon-card {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 20px;
+  align-items: center;
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.statle-sprite-mode {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  gap: 4px;
+  z-index: 2;
+}
+
+.statle-sprite-mode button {
+  min-height: 28px;
+  padding: 0 8px;
+  border: 1px solid #313947;
+  border-radius: 7px;
+  background: #151a22;
+  color: #66717f;
+  font: 600 .52rem 'DM Mono', monospace;
+}
+
+.statle-sprite-mode button.active {
+  color: var(--game);
+  border-color: color-mix(in srgb, var(--game) 42%, #394250);
+}
+
+.statle-pokemon-image {
+  min-height: 220px;
+  border: 1px solid #28313b;
+  border-radius: 15px;
+  background:
+    radial-gradient(circle, rgba(255,204,85,.07), transparent 58%),
+    #10151c;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.statle-pokemon-image img {
+  width: 88%;
+  height: 210px;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 22px rgba(0,0,0,.24));
+}
+
+.statle-pokemon-image.pixel img {
+  width: 128px;
+  height: 128px;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 10px 12px rgba(0,0,0,.25));
+}
+
+.statle-pokemon-info {
+  min-width: 0;
+  padding-right: 84px;
+}
+
+.statle-pokemon-info h3 {
+  margin: 5px 0 10px;
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  line-height: .95;
+  letter-spacing: -.05em;
+}
+
+.statle-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.statle-types span {
+  min-height: 28px;
+  padding: 0 9px;
+  border: 1px solid #313947;
+  border-radius: 999px;
+  background: #151a22;
+  color: #9ca6b5;
+  display: inline-flex;
+  align-items: center;
+  font: 600 .58rem 'DM Mono', monospace;
+  text-transform: uppercase;
+}
+
+.statle-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.statle-stat-button {
+  min-width: 0;
+  min-height: 92px;
+  padding: 9px 5px;
+  border: 1px solid #323a47;
+  border-radius: 11px;
+  background: #161c24;
+  color: #e8edf4;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 4px;
+}
+
+.statle-stat-button span,
+.statle-stat-button small {
+  color: #697382;
+  font: 600 .5rem 'DM Mono', monospace;
+  letter-spacing: .05em;
+}
+
+.statle-stat-button strong {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.statle-stat-button:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--game) 52%, #3a4350);
+  background: color-mix(in srgb, var(--game) 6%, #161c24);
+  transform: translateY(-2px);
+}
+
+.statle-stat-button:active:not(:disabled) {
+  transform: scale(.95);
+}
+
+.statle-stat-button.used {
+  opacity: .3;
+  cursor: default;
+}
+
+.statle-finished strong {
+  color: var(--game);
+  font-size: clamp(2.7rem, 9vw, 5rem);
+  line-height: 1;
+  letter-spacing: -.07em;
+}
+
+.statle-finished .primary-btn {
+  margin-top: 8px;
+}
+
+.statle-footnote {
+  margin-top: 10px;
+  color: #4e5866;
+  font: 500 .52rem 'DM Mono', monospace;
+  line-height: 1.5;
+  text-align: center;
+}
+
 /* Local scoreboards */
 .game-play-layout {
   display: grid;
@@ -2395,6 +2801,30 @@ footer {
     width: 52px;
     height: 48px;
   }
+
+  .statle-board {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .statle-slot {
+    min-height: 104px;
+  }
+
+  .statle-pokemon-card {
+    grid-template-columns: 170px 1fr;
+  }
+
+  .statle-pokemon-image {
+    min-height: 180px;
+  }
+
+  .statle-pokemon-image img {
+    height: 170px;
+  }
+
+  .statle-stat-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 @media (max-width: 430px) {
@@ -2477,6 +2907,47 @@ footer {
 
   .filter-summary {
     line-height: 1.45;
+  }
+
+  .statle-toolbar-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .statle-select {
+    width: 100%;
+  }
+
+  .statle-board {
+    gap: 6px;
+  }
+
+  .statle-pokemon-card {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .statle-pokemon-info {
+    padding-right: 0;
+    text-align: center;
+  }
+
+  .statle-types {
+    justify-content: center;
+  }
+
+  .statle-sprite-mode {
+    top: 8px;
+    right: 8px;
+  }
+
+  .statle-pokemon-image {
+    min-height: 210px;
+  }
+
+  .statle-stat-button {
+    min-height: 82px;
   }
 
   .reaction-zone {
