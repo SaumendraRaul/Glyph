@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 const KEY = 'glyph-profile-v1'
-const GAME_IDS = ['wordle', 'hangman', 'minesweeper', 'memory', '2048', 'snake', 'connections', 'reaction']
+const GAME_IDS = ['wordle', 'hangman', 'minesweeper', 'memory', '2048', 'snake', 'connections', 'reaction', 'pokemon-connections']
 const V1_IDS = ['wordle', 'hangman', 'minesweeper', 'memory']
 
 const blankGame = () => ({ played: 0, wins: 0, best: null, history: [] })
@@ -55,6 +55,7 @@ function unlocked(profile) {
     profile.games['2048'].wins >= 1 && 'power-two',
     profile.games.snake.wins >= 1 && 'serpent',
     profile.games.connections.wins >= 3 && 'connector',
+    profile.games['pokemon-connections'].wins >= 3 && 'pokemon-professor',
     profile.games.reaction.best != null && profile.games.reaction.best < 300 && 'fast-hands',
     everyGamePlayed && 'full-circuit',
     profile.xp >= 1000 && 'four-digits',
@@ -71,6 +72,7 @@ export const ACHIEVEMENTS = {
   'power-two': { name: 'Power of Two', description: 'Reach 2048.' },
   serpent: { name: 'Serpent', description: 'Clear a Snake run.' },
   connector: { name: 'Pattern Hunter', description: 'Win 3 Connections puzzles.' },
+  'pokemon-professor': { name: 'Pokémon Professor', description: 'Win 3 Pokémon Connections puzzles.' },
   'fast-hands': { name: 'Fast Hands', description: 'Average under 300 ms in Reaction Test.' },
   'full-circuit': { name: 'Full Circuit', description: 'Play all 8 Glyph games.' },
   'four-digits': { name: 'Kilobyte Brain', description: 'Earn 1,000 XP.' },
