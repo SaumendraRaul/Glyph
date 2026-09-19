@@ -192,6 +192,7 @@ export default function Statle({ onComplete }) {
     if (Object.keys(nextClaimed).length === STATS.length) {
       const won = nextScore >= TARGET
       setStatus(won ? 'won' : 'lost')
+      setCurrent(null)
       setMessage(
         won
           ? `${nextScore} BST. Gold target cleared.`
