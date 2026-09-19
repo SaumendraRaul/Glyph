@@ -1,13 +1,17 @@
 # Glyph
 
-**Glyph** is a browser mini-game arcade built with React and Vite. V1 ships four complete games behind one shared progression system.
+**Glyph** is a responsive browser mini-game arcade built with React and Vite. V2 ships eight games behind one shared progression system.
 
-## V1 games
+## V2 games
 
 - **Word Grid** — Wordle-style 5-letter guessing with a real English guess dictionary.
 - **Hangman** — categorized words, hints, six lives, and score tracking.
 - **Minesweeper** — 9×9 beginner board, 10 mines, first-click safety, recursive clearing, right-click flags, and mobile flag mode.
 - **Memory Match** — 4×4 pair matching with move and time tracking.
+- **2048** — keyboard, swipe, and touch controls with score tracking and a 2048 win condition.
+- **Snake** — keyboard, swipe, and touch controls; eat 12 targets to clear a run.
+- **Connections** — four hidden word groups, four allowed mistakes, shuffle, and near-miss feedback.
+- **Reaction Test** — five reaction rounds with false-start handling and average reaction time.
 
 ## Shared arcade features
 
@@ -15,9 +19,11 @@
 - XP and levels
 - Win streak
 - Per-game played / wins / best score
-- Seven achievements
+- 12 achievements
 - Daily featured game
 - Responsive desktop/mobile UI
+- Tactile press feedback and game-specific animations
+- Smooth dashboard/game transitions
 - Local persistence through `localStorage`
 
 ## Run locally
@@ -41,9 +47,13 @@ src/
 ├── data/
 │   └── words.js
 ├── games/
+│   ├── Connections.jsx
+│   ├── Game2048.jsx
 │   ├── Hangman.jsx
 │   ├── MemoryMatch.jsx
 │   ├── Minesweeper.jsx
+│   ├── ReactionTest.jsx
+│   ├── Snake.jsx
 │   └── WordGrid.jsx
 ├── lib/
 │   └── profile.js
@@ -52,10 +62,10 @@ src/
 └── styles.css
 ```
 
-## V2 candidates
+## Future candidates
 
-Sudoku, Snake, 2048, Connections-style word groups, chess puzzles, and multiplayer Scribble.
+Sudoku, Scribble, Breakout, chess puzzles, 2048 variants, typing games, and multiplayer modes.
 
 ---
 
-Progress is intentionally device-local in V1. Accounts and cloud sync can be added later without changing the game-module architecture.
+Progress is device-local for now. Accounts and cloud sync can be added later without changing the game-module architecture.
