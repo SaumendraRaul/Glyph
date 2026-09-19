@@ -13,7 +13,7 @@
 - **Connections** — four hidden word groups, four allowed mistakes, shuffle, and near-miss feedback.
 - **Reaction Test** — five reaction rounds with false-start handling and average reaction time.
 - **Pokémon Connections** — themed 16-word grouping puzzles built from Pokémon, evolutions, regions, legendary groups, and other franchise knowledge.
-- **Statle** — six Pokémon, six base-stat claims, Gen 1–9 filter, PokéAPI sprites/artwork, and a 600+ BST target.
+- **Statle** — six Pokémon, hidden-stat picks with full reveal after selection, Gen 1–9 + Mega filters, all 93 distinct Mega Evolutions including Legends: Z-A / Mega Dimension additions, PokéAPI sprites/artwork, and a 600+ BST target.
 
 ## Shared arcade features
 
