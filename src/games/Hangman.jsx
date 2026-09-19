@@ -38,9 +38,6 @@ export default function Hangman({ onComplete }) {
 
   const strikes = wrongLetters.length + hintPenalty
   const lives = Math.max(0, MAX_WRONG - strikes)
-  const solved = [...entry.word].every(
-    (letter) => !/[A-Z]/.test(letter) || guessed.includes(letter),
-  )
   const revealedCount = [...new Set(entry.word.split(''))]
     .filter((letter) => /[A-Z]/.test(letter) && guessed.includes(letter))
     .length
@@ -101,6 +98,12 @@ export default function Hangman({ onComplete }) {
   useEffect(() => {
     function onKeyDown(event) {
       if (event.ctrlKey || event.metaKey || event.altKey) return
+      const target = event.target
+      if (
+        target instanceof HTMLElement &&
+        (target.matches('input, textarea, select') || target.isContentEditable)
+      ) return
+
       const letter = event.key.toUpperCase()
       if (/^[A-Z]$/.test(letter)) {
         event.preventDefault()
