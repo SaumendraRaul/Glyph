@@ -5,6 +5,10 @@ import WordGrid from './games/WordGrid'
 import Hangman from './games/Hangman'
 import Minesweeper from './games/Minesweeper'
 import MemoryMatch from './games/MemoryMatch'
+import Game2048 from './games/Game2048'
+import Snake from './games/Snake'
+import Connections from './games/Connections'
+import ReactionTest from './games/ReactionTest'
 
 const GAMES = [
   {
@@ -43,6 +47,42 @@ const GAMES = [
     accent: 'cyan',
     bestLabel: (best) => (best == null ? 'No best yet' : `Best: ${best} moves`),
   },
+  {
+    id: '2048',
+    title: '2048',
+    eyebrow: 'NUMBERS',
+    icon: '2ⁿ',
+    description: 'Merge equal tiles until the board gives you 2048.',
+    accent: 'amber',
+    bestLabel: (best) => (best == null ? 'No best yet' : `Best: ${best.toLocaleString()} pts`),
+  },
+  {
+    id: 'snake',
+    title: 'Snake',
+    eyebrow: 'ARCADE',
+    icon: '∿',
+    description: 'Eat twelve targets without meeting yourself or a wall.',
+    accent: 'mint',
+    bestLabel: (best) => (best == null ? 'No best yet' : `Best: ${best} food`),
+  },
+  {
+    id: 'connections',
+    title: 'Connections',
+    eyebrow: 'PATTERNS',
+    icon: '4×',
+    description: 'Sort sixteen words into four hidden groups.',
+    accent: 'rose',
+    bestLabel: (best) => (best == null ? 'No best yet' : `Best: ${best} mistakes`),
+  },
+  {
+    id: 'reaction',
+    title: 'Reaction Test',
+    eyebrow: 'REFLEX',
+    icon: '⚡',
+    description: 'Five rounds. One signal. No premature heroics.',
+    accent: 'blue',
+    bestLabel: (best) => (best == null ? 'No best yet' : `Best: ${best}ms avg`),
+  },
 ]
 
 const GAME_COMPONENTS = {
@@ -50,6 +90,10 @@ const GAME_COMPONENTS = {
   hangman: Hangman,
   minesweeper: Minesweeper,
   memory: MemoryMatch,
+  '2048': Game2048,
+  snake: Snake,
+  connections: Connections,
+  reaction: ReactionTest,
 }
 
 function levelFromXp(xp) {
@@ -105,11 +149,54 @@ function GamePreview({ id }) {
     )
   }
 
+  if (id === 'memory') {
+    return (
+      <div className="card-preview memory-preview" aria-hidden="true">
+        {['◇', '?', '○', '?', '◇', '△', '?', '○'].map((value, index) => (
+          <span className={value === '?' ? '' : 'open'} key={index}>{value}</span>
+        ))}
+      </div>
+    )
+  }
+
+  if (id === '2048') {
+    return (
+      <div className="card-preview preview2048" aria-hidden="true">
+        {[2, 4, 8, 16, 0, 32, 64, 0, 128, 256, 0, 0].map((value, index) => (
+          <span className={value ? 'filled' : ''} key={index}>{value || ''}</span>
+        ))}
+      </div>
+    )
+  }
+
+  if (id === 'snake') {
+    return (
+      <div className="card-preview snake-preview" aria-hidden="true">
+        {Array.from({ length: 40 }, (_, index) => {
+          const snake = [18, 19, 20, 21, 29, 30].includes(index)
+          const head = index === 30
+          const food = index === 12
+          return <span className={head ? 'head' : snake ? 'body' : food ? 'food' : ''} key={index} />
+        })}
+      </div>
+    )
+  }
+
+  if (id === 'connections') {
+    return (
+      <div className="card-preview connections-preview" aria-hidden="true">
+        <span>CHROME</span><span>EDGE</span><span>SAFARI</span><span>FIREFOX</span>
+        <span className="soft">HEART</span><span className="soft">SPADE</span><span className="soft">CLUB</span><span className="soft">DIAMOND</span>
+      </div>
+    )
+  }
+
   return (
-    <div className="card-preview memory-preview" aria-hidden="true">
-      {['◇', '?', '○', '?', '◇', '△', '?', '○'].map((value, index) => (
-        <span className={value === '?' ? '' : 'open'} key={index}>{value}</span>
-      ))}
+    <div className="card-preview reaction-preview" aria-hidden="true">
+      <div className="reaction-mini-dot" />
+      <strong>243</strong>
+      <span>ms</span>
+      <i />
     </div>
   )
 }
@@ -118,6 +205,7 @@ function Dashboard({ profile, totals, onPlay, onReset }) {
   const level = levelFromXp(profile.xp)
   const daily = GAMES[todayIndex(GAMES.length)]
   const unlocked = profile.achievements.length
+  const badgeCount = Object.keys(ACHIEVEMENTS).length
 
   return (
     <div className="dashboard-view">
@@ -126,7 +214,7 @@ function Dashboard({ profile, totals, onPlay, onReset }) {
           <div className="kicker">GLYPH // ARCADE SYSTEM</div>
           <h1>Small games.<br /><span>Serious scores.</span></h1>
           <p className="hero-copy">
-            Four polished brain-breakers in one tiny arcade. Your stats, XP and streak follow you everywhere.
+            Eight polished brain-breakers in one tiny arcade. Your stats, XP and streak follow you everywhere.
           </p>
           <div className="hero-actions">
             <button className="primary-btn" onClick={() => onPlay(daily.id)}>
@@ -153,7 +241,7 @@ function Dashboard({ profile, totals, onPlay, onReset }) {
             <div><strong>{totals.played}</strong><span>Played</span></div>
             <div><strong>{totals.wins}</strong><span>Wins</span></div>
             <div><strong>{profile.streak}</strong><span>Streak</span></div>
-            <div><strong>{unlocked}/7</strong><span>Badges</span></div>
+            <div><strong>{unlocked}/{badgeCount}</strong><span>Badges</span></div>
           </div>
         </div>
       </section>
@@ -163,7 +251,7 @@ function Dashboard({ profile, totals, onPlay, onReset }) {
           <span className="kicker">GAME LIBRARY</span>
           <h2>Choose your problem.</h2>
         </div>
-        <span className="muted-label">V1 • {GAMES.length} games</span>
+        <span className="muted-label">V2 • {GAMES.length} games</span>
       </section>
 
       <section className="game-grid">
@@ -298,7 +386,7 @@ export default function App() {
       </main>
 
       <footer>
-        <span>GLYPH V1</span>
+        <span>GLYPH V2</span>
         <span>Progress stays on this device.</span>
       </footer>
     </div>
