@@ -74,7 +74,7 @@ export const ACHIEVEMENTS = {
   connector: { name: 'Pattern Hunter', description: 'Win 3 Connections puzzles.' },
   'pokemon-professor': { name: 'Pokémon Professor', description: 'Win 3 Pokémon Connections puzzles.' },
   'fast-hands': { name: 'Fast Hands', description: 'Average under 300 ms in Reaction Test.' },
-  'full-circuit': { name: 'Full Circuit', description: 'Play all 8 Glyph games.' },
+  'full-circuit': { name: 'Full Circuit', description: 'Play all 9 Glyph games.' },
   'four-digits': { name: 'Kilobyte Brain', description: 'Earn 1,000 XP.' },
 }
 
