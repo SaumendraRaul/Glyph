@@ -2224,6 +2224,7 @@ main { padding: 72px 0 64px; }
 }
 
 .statle-pokemon-image {
+  position: relative;
   min-height: 220px;
   border: 1px solid #28313b;
   border-radius: 15px;
