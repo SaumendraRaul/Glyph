@@ -10,6 +10,10 @@ const PUZZLES=[
   {id:4,difficulty:'MEDIUM',title:'Loose Queen',prompt:'White to move. The diagonal is doing all the work.',fen:'4k3/8/2q5/8/4B3/8/6PP/6K1 w - - 0 1',from:'e4',to:'c6',solution:'Bxc6+',motif:'SKEWER'},
   {id:5,difficulty:'HARD',title:'Rook Invasion',prompt:'White to move. Find the forcing rook entry.',fen:'6k1/5ppp/8/8/8/6Q1/5PPP/4R1K1 w - - 0 1',from:'e1',to:'e8',solution:'Re8+',motif:'INVASION'},
   {id:6,difficulty:'HARD',title:'Cornered King',prompt:'White to move. The queen has one forcing entry on the eighth rank.',fen:'6k1/7p/8/8/3Q4/8/6PP/6K1 w - - 0 1',from:'d4',to:'h8',solution:'Qh8+',motif:'QUEEN LINE'},
+  {id:7,difficulty:'EASY',title:'Free Queen',prompt:'White to move. A whole queen is sitting on an open file.',fen:'6k1/3q4/8/8/8/8/6PP/3R2K1 w - - 0 1',from:'d1',to:'d7',solution:'Rxd7',motif:'HANGING PIECE'},
+  {id:8,difficulty:'EASY',title:'Long Diagonal',prompt:'White to move. The bishop has a clean road to the rook.',fen:'6k1/1r6/8/8/8/8/6BP/6K1 w - - 0 1',from:'g2',to:'b7',solution:'Bxb7',motif:'DIAGONAL'},
+  {id:9,difficulty:'MEDIUM',title:'Knight Tax',prompt:'White to move. Take the queen and check the king at the same time.',fen:'6k1/8/7q/5N2/8/8/6PP/6K1 w - - 0 1',from:'f5',to:'h6',solution:'Nxh6+',motif:'FORK'},
+  {id:10,difficulty:'HARD',title:'Last Rank Geometry',prompt:'White to move. The queen can land beside the king with nowhere polite to go.',fen:'7k/7p/4Q3/8/8/8/6PP/6K1 w - - 0 1',from:'e6',to:'g8',solution:'Qg8#',motif:'MATING NET'},
 ]
 
 function parseFen(fen){
