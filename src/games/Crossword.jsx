@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
+const KEY_ROWS=['QWERTYUIOP','ASDFGHJKL','ZXCVBNM']
+
 const PUZZLES=[
   {
     name:'Round Things',
@@ -155,9 +157,10 @@ export default function Crossword({onComplete}){
             {grid.map((letter,index)=>{
               const row=Math.floor(index/4),col=index%4
               const active=direction==='ACROSS'?row===Math.floor(selected/4):col===selected%4
+              const number=col===0?row+1:row===0?col+1:''
               const cls='cross-cell '+(selected===index?'selected ':'')+(active?'active-line ':'')+(wrongCells.includes(index)?'wrong':'')
               return <button className={cls} onClick={()=>{if(selected===index)setDirection((d)=>d==='ACROSS'?'DOWN':'ACROSS');setSelected(index)}} key={index}>
-                <span className="cross-number">{direction==='ACROSS'?row+1:col+1}</span>{letter}
+                {number&&<span className="cross-number">{number}</span>}{letter}
               </button>
             })}
           </div>
@@ -168,6 +171,15 @@ export default function Crossword({onComplete}){
             <button className="secondary-btn" onClick={()=>setDirection((d)=>d==='ACROSS'?'DOWN':'ACROSS')}>{direction} ↻</button>
             <button className="secondary-btn" onClick={hint}>Hint +30s</button>
             <button className="secondary-btn" onClick={check}>Check</button>
+          </div>
+
+          <div className="cross-keyboard" aria-label="Crossword keyboard">
+            {KEY_ROWS.map((row)=>(
+              <div key={row}>
+                {row.split('').map((letter)=><button onClick={()=>enter(letter)} disabled={status!=='playing'} key={letter}>{letter}</button>)}
+              </div>
+            ))}
+            <button className="cross-backspace" onClick={backspace} disabled={status!=='playing'}>⌫</button>
           </div>
         </div>
 
