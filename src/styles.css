@@ -4696,6 +4696,39 @@ footer {
 .cross-active-clue span { color: var(--game); font: 600 .52rem 'DM Mono', monospace; }
 .cross-active-clue strong { font-size: .74rem; }
 .cross-actions { margin-top: 8px; display: grid; grid-template-columns: repeat(3,1fr); gap: 5px; }
+
+.cross-keyboard {
+  margin-top: 10px;
+  display: grid;
+  gap: 5px;
+}
+.cross-keyboard > div {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+}
+.cross-keyboard button {
+  min-width: 0;
+  min-height: 38px;
+  flex: 1 1 0;
+  max-width: 38px;
+  padding: 0;
+  border: 1px solid #303845;
+  border-radius: 7px;
+  background: #151b23;
+  color: #dce3eb;
+  font: 700 .62rem 'DM Mono', monospace;
+}
+.cross-keyboard button:active:not(:disabled) {
+  transform: scale(.93);
+  border-color: color-mix(in srgb,var(--game) 45%,#303845);
+}
+.cross-keyboard .cross-backspace {
+  max-width: none;
+  width: 100%;
+  min-height: 38px;
+}
+
 .cross-clues { display: grid; gap: 12px; }
 .cross-clues section {
   padding: 12px;
@@ -5062,4 +5095,13 @@ footer {
   .silhouette-stage img { height: 195px; }
   .chess-square > span { font-size: clamp(1.25rem,9vw,2.25rem); }
   .aim-zone { min-height: 330px; }
+}
+
+@media (max-width: 430px) {
+  .cross-keyboard button {
+    min-height: 36px;
+    max-width: none;
+    font-size: .58rem;
+  }
+  .cross-keyboard > div { gap: 3px; }
 }
