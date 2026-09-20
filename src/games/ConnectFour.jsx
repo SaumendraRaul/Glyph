@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 const ROWS = 6
 const COLS = 7
@@ -161,10 +161,15 @@ export default function ConnectFour({ onComplete }) {
   const [moves, setMoves] = useState(0)
   const [winningCells, setWinningCells] = useState([])
   const [thinking, setThinking] = useState(false)
+  const aiTimer = useRef(null)
 
   const filled = useMemo(() => board.filter(Boolean).length, [board])
 
+  useEffect(() => () => window.clearTimeout(aiTimer.current), [])
+
   function reset() {
+    window.clearTimeout(aiTimer.current)
+    aiTimer.current = null
     setBoard(newBoard())
     setTurn(PLAYER)
     setStatus('playing')
@@ -212,7 +217,7 @@ export default function ConnectFour({ onComplete }) {
     }
 
     setThinking(true)
-    window.setTimeout(() => {
+    aiTimer.current = window.setTimeout(() => {
       const colChoice = aiMove(result.board, difficulty)
       if (colChoice == null) {
         setThinking(false)
@@ -223,6 +228,7 @@ export default function ConnectFour({ onComplete }) {
       setBoard(cpuResult.board)
       setMoves(cpuMoves)
       setThinking(false)
+      aiTimer.current = null
 
       if (finish(cpuResult.board, CPU, cpuMoves)) return
 
