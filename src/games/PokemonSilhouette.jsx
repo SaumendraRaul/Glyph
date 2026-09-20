@@ -71,7 +71,7 @@ export default function PokemonSilhouette({onComplete}){
     setWrong(next)
     if(next.length>=MAX){
       setStatus('lost')
-      onComplete({won:false,score:MAX,lowerIsBetter:true})
+      onComplete({won:false})
     }
   }
 
