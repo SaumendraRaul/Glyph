@@ -1,5 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { flushSync } from 'react-dom'
+import { Capacitor } from '@capacitor/core'
+import { App as CapacitorApp } from '@capacitor/app'
 import { ACHIEVEMENTS, useProfile } from './lib/profile'
 import WordGrid from './games/WordGrid'
 import Hangman from './games/Hangman'
@@ -534,6 +536,29 @@ export default function App() {
   )
 
   const ActiveGame = activeGame ? GAME_COMPONENTS[activeGame] : null
+
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return undefined
+
+    let listener
+    let disposed = false
+
+    CapacitorApp.addListener('backButton', () => {
+      if (activeGame) {
+        navigate(null)
+      } else {
+        CapacitorApp.exitApp()
+      }
+    }).then((handle) => {
+      if (disposed) handle.remove()
+      else listener = handle
+    })
+
+    return () => {
+      disposed = true
+      listener?.remove()
+    }
+  }, [activeGame])
 
   function navigate(nextGame) {
     const apply = () => {
