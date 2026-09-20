@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 const KEY = 'glyph-profile-v1'
-const GAME_IDS = ['wordle', 'hangman', 'minesweeper', 'memory', '2048', 'snake', 'connections', 'reaction', 'pokemon-connections', 'statle']
+const GAME_IDS = ['wordle', 'hangman', 'minesweeper', 'memory', '2048', 'snake', 'connections', 'reaction', 'pokemon-connections', 'statle', 'connect4', 'pokeguess', 'guesswork', 'typing', 'chess', 'crossword', 'sudoku', 'silhouette', 'aim']
 const V1_IDS = ['wordle', 'hangman', 'minesweeper', 'memory']
 
 const blankGame = () => ({ played: 0, wins: 0, best: null, history: [] })
@@ -29,6 +29,15 @@ function unlocked(profile) {
   const pokemonConnections = profile.games['pokemon-connections']
   const reaction = profile.games.reaction
   const statle = profile.games.statle
+  const connect4 = profile.games.connect4
+  const pokeguess = profile.games.pokeguess
+  const guesswork = profile.games.guesswork
+  const typing = profile.games.typing
+  const chess = profile.games.chess
+  const crossword = profile.games.crossword
+  const sudoku = profile.games.sudoku
+  const silhouette = profile.games.silhouette
+  const aim = profile.games.aim
 
   return [
     totalWins >= 1 && 'first-win',
@@ -104,6 +113,51 @@ function unlocked(profile) {
     statle.best != null && statle.best >= 600 && 'statle-gold',
     statle.best != null && statle.best >= 650 && 'statle-elite',
     statle.played >= 10 && 'statle-veteran',
+
+    connect4.wins >= 1 && 'connect-first',
+    connect4.wins >= 5 && 'connect-five',
+    connect4.wins >= 10 && 'connect-master',
+    connect4.best != null && connect4.best <= 15 && 'connect-efficient',
+
+    pokeguess.wins >= 1 && 'pokeguess-first',
+    pokeguess.wins >= 5 && 'pokeguess-five',
+    pokeguess.wins >= 10 && 'pokeguess-master',
+    pokeguess.best != null && pokeguess.best === 1 && 'pokeguess-one',
+
+    guesswork.wins >= 1 && 'guesswork-first',
+    guesswork.wins >= 10 && 'guesswork-master',
+    guesswork.best != null && guesswork.best >= 800 && 'guesswork-sharp',
+    guesswork.best != null && guesswork.best >= 1000 && 'guesswork-perfect',
+
+    typing.played >= 1 && 'typing-first',
+    typing.best != null && typing.best >= 400 && 'typing-quick',
+    typing.best != null && typing.best >= 600 && 'typing-fast',
+    typing.played >= 10 && 'typing-veteran',
+
+    chess.wins >= 1 && 'chess-first',
+    chess.wins >= 5 && 'chess-five',
+    chess.wins >= 10 && 'chess-master',
+    chess.best != null && chess.best <= 15 && 'chess-clean',
+
+    crossword.wins >= 1 && 'cross-first',
+    crossword.wins >= 5 && 'cross-five',
+    crossword.wins >= 10 && 'cross-master',
+    crossword.best != null && crossword.best <= 90 && 'cross-speed',
+
+    sudoku.wins >= 1 && 'sudoku-first',
+    sudoku.wins >= 5 && 'sudoku-five',
+    sudoku.wins >= 10 && 'sudoku-master',
+    sudoku.best != null && sudoku.best <= 300 && 'sudoku-speed',
+
+    silhouette.wins >= 1 && 'shadow-first',
+    silhouette.wins >= 5 && 'shadow-five',
+    silhouette.wins >= 10 && 'shadow-master',
+    silhouette.best != null && silhouette.best === 1 && 'shadow-one',
+
+    aim.played >= 1 && 'aim-first',
+    aim.best != null && aim.best >= 1200 && 'aim-steady',
+    aim.best != null && aim.best >= 2000 && 'aim-deadcenter',
+    aim.played >= 10 && 'aim-veteran',
   ].filter(Boolean)
 }
 
@@ -161,7 +215,7 @@ export const ACHIEVEMENTS = {
   'xp-5000': { name: 'Glyph Veteran', description: 'Earn 5,000 XP.' },
 
   tourist: { name: 'Arcade Tourist', description: 'Play every original V1 game.' },
-  'full-circuit': { name: 'Full Circuit', description: 'Play all 10 Glyph games.' },
+  'full-circuit': { name: 'Full Circuit', description: 'Play all 19 Glyph games.' },
 
   'wordle-first': { name: 'Five Letters', description: 'Win a Word Grid game.' },
   wordsmith: { name: 'Wordsmith', description: 'Win 5 Word Grid games.' },
@@ -212,6 +266,51 @@ export const ACHIEVEMENTS = {
   'statle-gold': { name: 'Stat Master', description: 'Score 600+ BST in Statle.' },
   'statle-elite': { name: 'Base Stat Monster', description: 'Score 650+ BST in Statle.' },
   'statle-veteran': { name: 'Six Picks Later', description: 'Finish 10 Statle runs.' },
+
+  'connect-first': { name: 'Four in a Row', description: 'Win a game of Connect ४.' },
+  'connect-five': { name: 'Center Control', description: 'Win 5 games of Connect ४.' },
+  'connect-master': { name: 'Grid General', description: 'Win 10 games of Connect ४.' },
+  'connect-efficient': { name: 'Fast Connection', description: 'Win Connect ४ in 15 total moves or fewer.' },
+
+  'pokeguess-first': { name: 'Dex Entry', description: 'Win a PokéGuess round.' },
+  'pokeguess-five': { name: 'Field Research', description: 'Win 5 PokéGuess rounds.' },
+  'pokeguess-master': { name: 'Living Pokédex', description: 'Win 10 PokéGuess rounds.' },
+  'pokeguess-one': { name: 'Professor Instinct', description: 'Solve PokéGuess on the first guess.' },
+
+  'guesswork-first': { name: 'Educated Guess', description: 'Solve a Guesswork mystery.' },
+  'guesswork-master': { name: 'No Coincidences', description: 'Win 10 Guesswork rounds.' },
+  'guesswork-sharp': { name: 'Thin Evidence', description: 'Score 800+ in Guesswork.' },
+  'guesswork-perfect': { name: 'One Clue Wonder', description: 'Score the maximum 1,000 in Guesswork.' },
+
+  'typing-first': { name: 'Home Row', description: 'Finish a Type Rush run.' },
+  'typing-quick': { name: 'Clacking Along', description: 'Score 400+ in Type Rush.' },
+  'typing-fast': { name: 'Key Hurricane', description: 'Score 600+ in Type Rush.' },
+  'typing-veteran': { name: 'Mechanical Sympathy', description: 'Finish 10 Type Rush runs.' },
+
+  'chess-first': { name: 'Tactic Found', description: 'Solve a Checkmate puzzle.' },
+  'chess-five': { name: 'Pattern Vision', description: 'Solve 5 Checkmate puzzles.' },
+  'chess-master': { name: 'Board Reader', description: 'Solve 10 Checkmate puzzles.' },
+  'chess-clean': { name: 'Instant Calculation', description: 'Solve a Checkmate puzzle with an adjusted time of 15 seconds or less.' },
+
+  'cross-first': { name: 'Crossed Wires', description: 'Solve a Crosswire mini.' },
+  'cross-five': { name: 'Clue Collector', description: 'Solve 5 Crosswire minis.' },
+  'cross-master': { name: 'Inkless Editor', description: 'Solve 10 Crosswire minis.' },
+  'cross-speed': { name: 'Quick Fill', description: 'Solve Crosswire in 90 adjusted seconds or less.' },
+
+  'sudoku-first': { name: 'Nine by Nine', description: 'Solve a Sudoku.' },
+  'sudoku-five': { name: 'Candidate Elimination', description: 'Solve 5 Sudokus.' },
+  'sudoku-master': { name: 'Grid Discipline', description: 'Solve 10 Sudokus.' },
+  'sudoku-speed': { name: 'Five Minute Grid', description: 'Solve Sudoku in 300 adjusted seconds or less.' },
+
+  'shadow-first': { name: 'Out of the Dark', description: 'Win a Silhouette round.' },
+  'shadow-five': { name: 'Shadow Dex', description: 'Win 5 Silhouette rounds.' },
+  'shadow-master': { name: 'Outline Expert', description: 'Win 10 Silhouette rounds.' },
+  'shadow-one': { name: 'Instant Recognition', description: 'Name a silhouette on the first guess.' },
+
+  'aim-first': { name: 'On Target', description: 'Finish a Deadcenter run.' },
+  'aim-steady': { name: 'Steady Hand', description: 'Score 1,200+ in Deadcenter.' },
+  'aim-deadcenter': { name: 'Dead Center', description: 'Score 2,000+ in Deadcenter.' },
+  'aim-veteran': { name: 'Range Regular', description: 'Finish 10 Deadcenter runs.' },
 }
 
 export function useProfile() {
