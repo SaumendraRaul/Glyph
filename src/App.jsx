@@ -13,6 +13,15 @@ import Connections from './games/Connections'
 import ReactionTest from './games/ReactionTest'
 import PokemonConnections from './games/PokemonConnections'
 import Statle from './games/Statle'
+import ConnectFour from './games/ConnectFour'
+import PokemonGuess from './games/PokemonGuess'
+import Guesswork from './games/Guesswork'
+import TypingRush from './games/TypingRush'
+import ChessPuzzle from './games/ChessPuzzle'
+import Crossword from './games/Crossword'
+import Sudoku from './games/Sudoku'
+import PokemonSilhouette from './games/PokemonSilhouette'
+import AimTrainer from './games/AimTrainer'
 
 const GAMES = [
   {
@@ -105,6 +114,87 @@ const GAMES = [
     accent: 'statle',
     bestLabel: (best) => (best == null ? 'No best yet' : `Best: ${best} BST`),
   },
+  {
+    id: 'connect4',
+    title: 'Connect ४',
+    eyebrow: 'STRATEGY',
+    icon: '४',
+    description: 'Connect four before the AI does, with three difficulty levels and local 2-player.',
+    accent: 'connect',
+    bestLabel: (best) => (best == null ? 'No best yet' : `Best win: ${best} moves`),
+  },
+  {
+    id: 'pokeguess',
+    title: 'PokéGuess',
+    eyebrow: 'POKÉMON',
+    icon: '?',
+    description: 'Guess a National Dex Pokémon using comparison feedback and progressive clues.',
+    accent: 'poke2',
+    bestLabel: (best) => (best == null ? 'No best yet' : `Best: ${best} guess${best === 1 ? '' : 'es'}`),
+  },
+  {
+    id: 'guesswork',
+    title: 'Guesswork',
+    eyebrow: 'CLUES',
+    icon: '¿',
+    description: 'Identify the mystery from layered clues across tech, space, nature and more.',
+    accent: 'guess',
+    bestLabel: (best) => (best == null ? 'No best yet' : `Best: ${best} pts`),
+  },
+  {
+    id: 'typing',
+    title: 'Type Rush',
+    eyebrow: 'TYPING',
+    icon: '⌨',
+    description: 'Race the clock for WPM, accuracy, combos and a score worth bragging about.',
+    accent: 'typing',
+    bestLabel: (best) => (best == null ? 'No best yet' : `Best: ${best} pts`),
+  },
+  {
+    id: 'chess',
+    title: 'Checkmate',
+    eyebrow: 'CHESS',
+    icon: '♞',
+    description: 'Solve compact tactical positions with difficulty filters and layered hints.',
+    accent: 'chess',
+    bestLabel: (best) => (best == null ? 'No best yet' : `Best: ${best}s adjusted`),
+  },
+  {
+    id: 'crossword',
+    title: 'Crosswire',
+    eyebrow: 'CROSSWORD',
+    icon: '✚',
+    description: 'Mini crosswords with Across/Down clues, keyboard navigation and timed scoring.',
+    accent: 'cross',
+    bestLabel: (best) => (best == null ? 'No best yet' : `Best: ${best}s adjusted`),
+  },
+  {
+    id: 'sudoku',
+    title: 'Sudoku',
+    eyebrow: 'LOGIC',
+    icon: '9×',
+    description: 'Full 9×9 Sudoku with notes, hints, mistakes, difficulty and a proper timer.',
+    accent: 'sudoku',
+    bestLabel: (best) => (best == null ? 'No best yet' : `Best: ${best}s adjusted`),
+  },
+  {
+    id: 'silhouette',
+    title: 'Silhouette',
+    eyebrow: 'POKÉMON',
+    icon: '◐',
+    description: 'Name the Pokémon from its shadow while clues slowly betray the answer.',
+    accent: 'shadow',
+    bestLabel: (best) => (best == null ? 'No best yet' : `Best: ${best} guess${best === 1 ? '' : 'es'}`),
+  },
+  {
+    id: 'aim',
+    title: 'Deadcenter',
+    eyebrow: 'AIM',
+    icon: '⊕',
+    description: 'Hit shrinking targets fast while accuracy and reaction time punish sloppy taps.',
+    accent: 'aim',
+    bestLabel: (best) => (best == null ? 'No best yet' : `Best: ${best} pts`),
+  },
 ]
 
 const GAME_COMPONENTS = {
@@ -118,6 +208,15 @@ const GAME_COMPONENTS = {
   reaction: ReactionTest,
   'pokemon-connections': PokemonConnections,
   statle: Statle,
+  connect4: ConnectFour,
+  pokeguess: PokemonGuess,
+  guesswork: Guesswork,
+  typing: TypingRush,
+  chess: ChessPuzzle,
+  crossword: Crossword,
+  sudoku: Sudoku,
+  silhouette: PokemonSilhouette,
+  aim: AimTrainer,
 }
 
 function levelFromXp(xp) {
@@ -191,6 +290,60 @@ const SCOREBOARD_META = {
   statle: {
     label: 'BST SCORE',
     format: (score) => `${score} BST`,
+    lowerIsBetter: false,
+    rankLosses: true,
+  },
+  connect4: {
+    label: 'MOVES',
+    format: (score) => `${score}`,
+    lowerIsBetter: true,
+    rankLosses: false,
+  },
+  pokeguess: {
+    label: 'GUESSES',
+    format: (score) => `${score}/6`,
+    lowerIsBetter: true,
+    rankLosses: false,
+  },
+  guesswork: {
+    label: 'SCORE',
+    format: (score) => score.toLocaleString(),
+    lowerIsBetter: false,
+    rankLosses: false,
+  },
+  typing: {
+    label: 'SCORE',
+    format: (score) => score.toLocaleString(),
+    lowerIsBetter: false,
+    rankLosses: true,
+  },
+  chess: {
+    label: 'ADJUSTED TIME',
+    format: (score) => `${score}s`,
+    lowerIsBetter: true,
+    rankLosses: false,
+  },
+  crossword: {
+    label: 'ADJUSTED TIME',
+    format: (score) => `${score}s`,
+    lowerIsBetter: true,
+    rankLosses: false,
+  },
+  sudoku: {
+    label: 'ADJUSTED TIME',
+    format: (score) => `${score}s`,
+    lowerIsBetter: true,
+    rankLosses: false,
+  },
+  silhouette: {
+    label: 'GUESSES',
+    format: (score) => `${score}/5`,
+    lowerIsBetter: true,
+    rankLosses: false,
+  },
+  aim: {
+    label: 'SCORE',
+    format: (score) => score.toLocaleString(),
     lowerIsBetter: false,
     rankLosses: true,
   },
@@ -402,6 +555,81 @@ function GamePreview({ id }) {
     )
   }
 
+  if (id === 'connect4') {
+    return (
+      <div className="card-preview connect-preview" aria-hidden="true">
+        {Array.from({ length: 28 }, (_, index) => (
+          <span className={[18,20,25].includes(index) ? 'p1' : [19,24,26].includes(index) ? 'p2' : ''} key={index} />
+        ))}
+      </div>
+    )
+  }
+
+  if (id === 'pokeguess') {
+    return (
+      <div className="card-preview pokeguess-preview" aria-hidden="true">
+        <strong>?</strong>
+        <div><span>GEN ↑</span><span>TYPE ✓</span><span>1.2m ↓</span></div>
+      </div>
+    )
+  }
+
+  if (id === 'guesswork') {
+    return (
+      <div className="card-preview guess-preview" aria-hidden="true">
+        <span>01</span><p>I orbit something larger.</p><i>?</i>
+      </div>
+    )
+  }
+
+  if (id === 'typing') {
+    return (
+      <div className="card-preview typing-preview" aria-hidden="true">
+        <span>binary</span><strong>vector</strong><span>galaxy</span><i>57 WPM</i>
+      </div>
+    )
+  }
+
+  if (id === 'chess') {
+    return (
+      <div className="card-preview chess-preview" aria-hidden="true">
+        {['♜','','','♚','','','','','', '','♘','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','♔',''].map((piece,index) => <span key={index}>{piece}</span>)}
+      </div>
+    )
+  }
+
+  if (id === 'crossword') {
+    return (
+      <div className="card-preview cross-preview" aria-hidden="true">
+        {'BALLAREALEADLADY'.split('').map((letter,index)=><span key={index}>{letter}</span>)}
+      </div>
+    )
+  }
+
+  if (id === 'sudoku') {
+    return (
+      <div className="card-preview sudoku-preview" aria-hidden="true">
+        {'530070000600195000098000060'.split('').map((n,index)=><span key={index}>{n==='0'?'':n}</span>)}
+      </div>
+    )
+  }
+
+  if (id === 'silhouette') {
+    return (
+      <div className="card-preview shadow-preview" aria-hidden="true">
+        <div className="shadow-blob">?</div><span>GEN ?</span><span>TYPE ?</span>
+      </div>
+    )
+  }
+
+  if (id === 'aim') {
+    return (
+      <div className="card-preview aim-preview" aria-hidden="true">
+        <span className="aim-preview-ring"><i /></span><b>⊕</b><small>96%</small>
+      </div>
+    )
+  }
+
   return (
     <div className="card-preview reaction-preview" aria-hidden="true">
       <div className="reaction-mini-dot" />
@@ -426,7 +654,7 @@ function Dashboard({ profile, totals, onPlay, onReset }) {
           <div className="kicker">GLYPH // ARCADE SYSTEM</div>
           <h1>Small games.<br /><span>Serious scores.</span></h1>
           <p className="hero-copy">
-            Ten polished brain-breakers in one tiny arcade. Your stats, XP and streak follow you everywhere.
+            Nineteen polished brain-breakers in one tiny arcade. Your stats, XP and streak follow you everywhere.
           </p>
           <div className="hero-actions">
             <button className="primary-btn" onClick={() => onPlay(daily.id)}>
@@ -463,7 +691,7 @@ function Dashboard({ profile, totals, onPlay, onReset }) {
           <span className="kicker">GAME LIBRARY</span>
           <h2>Choose your problem.</h2>
         </div>
-        <span className="muted-label">V2 • {GAMES.length} games</span>
+        <span className="muted-label">V3 • {GAMES.length} games</span>
       </section>
 
       <section className="game-grid">
@@ -654,7 +882,7 @@ export default function App() {
       </main>
 
       <footer>
-        <span>GLYPH V2</span>
+        <span>GLYPH V3</span>
         <span>Progress stays on this device.</span>
       </footer>
     </div>
