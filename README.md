@@ -25,6 +25,7 @@
 - 14 achievements
 - Daily featured game
 - Responsive desktop/mobile UI
+- Compact expandable mobile game tiles and collapsible achievements
 - Tactile press feedback and game-specific animations
 - Smooth dashboard/game transitions
 - Local persistence through `localStorage`
