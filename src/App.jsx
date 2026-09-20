@@ -413,6 +413,7 @@ function GamePreview({ id }) {
 }
 
 function Dashboard({ profile, totals, onPlay, onReset }) {
+  const [expandedGame, setExpandedGame] = useState(null)
   const level = levelFromXp(profile.xp)
   const daily = GAMES[todayIndex(GAMES.length)]
   const unlocked = profile.achievements.length
@@ -468,60 +469,90 @@ function Dashboard({ profile, totals, onPlay, onReset }) {
       <section className="game-grid">
         {GAMES.map((game) => {
           const stats = profile.games[game.id]
+          const isExpanded = expandedGame === game.id
+
           return (
-            <article className={`game-card accent-${game.accent}`} key={game.id}>
-              <div className="game-card-top">
-                <div className="game-icon">{game.icon}</div>
-                <span className="game-type">{game.eyebrow}</span>
-              </div>
-
-              <GamePreview id={game.id} />
-
-              <div className="game-card-copy">
-                <h3>{game.title}</h3>
-                <p>{game.description}</p>
-              </div>
-
-              <div className="card-stats">
-                <span><b>{stats.wins}</b> / {stats.played} wins</span>
-                <span>{game.bestLabel(stats.best)}</span>
-              </div>
-
-              <button className="card-play" onClick={() => onPlay(game.id)}>
-                <span>Play</span>
-                <span className="play-arrow" aria-hidden="true">↗</span>
+            <article
+              className={`game-card accent-${game.accent} ${isExpanded ? 'mobile-expanded' : ''}`}
+              key={game.id}
+            >
+              <button
+                className="mobile-game-tile"
+                type="button"
+                aria-expanded={isExpanded}
+                onClick={() => setExpandedGame((current) => current === game.id ? null : game.id)}
+              >
+                <span className="mobile-tile-icon">{game.icon}</span>
+                <span className="mobile-tile-copy">
+                  <strong>{game.title}</strong>
+                  <small>{game.eyebrow}</small>
+                </span>
+                <span className="mobile-tile-expand" aria-hidden="true">{isExpanded ? '−' : '+'}</span>
               </button>
+
+              <div className="game-card-details">
+                <div className="game-card-top">
+                  <div className="game-icon">{game.icon}</div>
+                  <span className="game-type">{game.eyebrow}</span>
+                </div>
+
+                <GamePreview id={game.id} />
+
+                <div className="game-card-copy">
+                  <h3>{game.title}</h3>
+                  <p>{game.description}</p>
+                </div>
+
+                <div className="card-stats">
+                  <span><b>{stats.wins}</b> / {stats.played} wins</span>
+                  <span>{game.bestLabel(stats.best)}</span>
+                </div>
+
+                <button className="card-play" onClick={() => onPlay(game.id)}>
+                  <span>Play</span>
+                  <span className="play-arrow" aria-hidden="true">↗</span>
+                </button>
+              </div>
             </article>
           )
         })}
       </section>
 
-      <section className="achievements-panel">
-        <div className="section-head compact">
+      <details className="achievements-panel">
+        <summary className="achievement-toggle">
           <div>
             <span className="kicker">ACHIEVEMENTS</span>
             <h2>Proof of unnecessary competence.</h2>
+            <span className="achievement-count">{unlocked} / {badgeCount} unlocked</span>
           </div>
-          <button className="text-btn reset-progress" onClick={onReset}>Reset local progress</button>
-        </div>
-        <div className="badge-grid">
-          {Object.entries(ACHIEVEMENTS).map(([id, item]) => {
-            const isUnlocked = profile.achievements.includes(id)
-            return (
-              <div className={`badge ${isUnlocked ? 'unlocked' : ''}`} key={id}>
-                <span className="badge-mark" aria-hidden="true">{isUnlocked ? '◆' : '◇'}</span>
-                <div>
-                  <div className="badge-title-row">
-                    <strong>{item.name}</strong>
-                    {isUnlocked && <span className="badge-state">UNLOCKED</span>}
+          <span className="achievement-chevron" aria-hidden="true">⌄</span>
+        </summary>
+
+        <div className="achievement-body">
+          <div className="achievement-tools">
+            <span>{badgeCount - unlocked} still locked. Humanity survives another checklist.</span>
+            <button className="text-btn reset-progress" onClick={onReset}>Reset local progress</button>
+          </div>
+
+          <div className="badge-grid">
+            {Object.entries(ACHIEVEMENTS).map(([id, item]) => {
+              const isUnlocked = profile.achievements.includes(id)
+              return (
+                <div className={`badge ${isUnlocked ? 'unlocked' : ''}`} key={id}>
+                  <span className="badge-mark" aria-hidden="true">{isUnlocked ? '◆' : '◇'}</span>
+                  <div>
+                    <div className="badge-title-row">
+                      <strong>{item.name}</strong>
+                      {isUnlocked && <span className="badge-state">UNLOCKED</span>}
+                    </div>
+                    <span>{item.description}</span>
                   </div>
-                  <span>{item.description}</span>
                 </div>
-              </div>
-            )
-          })}
+              )
+            })}
+          </div>
         </div>
-      </section>
+      </details>
     </div>
   )
 }
