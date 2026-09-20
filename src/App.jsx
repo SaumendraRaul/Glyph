@@ -301,7 +301,7 @@ const SCOREBOARD_META = {
   },
   pokeguess: {
     label: 'GUESSES',
-    format: (score) => `${score}/6`,
+    format: (score) => `${score} guess${score === 1 ? '' : 'es'}`,
     lowerIsBetter: true,
     rankLosses: false,
   },
