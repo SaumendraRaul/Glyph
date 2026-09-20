@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { GENERATIONS, fetchPokemonById, pokemonSuggestions, randomPokemonId, resolvePokemonGuess } from '../lib/pokemon'
 
 const MAX=5
@@ -11,8 +11,10 @@ export default function PokemonSilhouette({onComplete}){
   const [wrong,setWrong]=useState([])
   const [status,setStatus]=useState('loading')
   const [error,setError]=useState('')
+  const requestId=useRef(0)
 
   async function reset(nextGen=generation){
+    const token=++requestId.current
     setGeneration(String(nextGen))
     setInput('')
     setSuggestions([])
@@ -20,15 +22,18 @@ export default function PokemonSilhouette({onComplete}){
     setStatus('loading')
     setError('')
     try{
-      setTarget(await fetchPokemonById(randomPokemonId(String(nextGen))))
+      const loaded=await fetchPokemonById(randomPokemonId(String(nextGen)))
+      if(token!==requestId.current)return
+      setTarget(loaded)
       setStatus('playing')
     }catch(err){
+      if(token!==requestId.current)return
       setError(err instanceof Error?err.message:'Could not load silhouette.')
       setStatus('error')
     }
   }
 
-  useEffect(()=>{reset('ALL')},[])
+  useEffect(()=>{reset('ALL');return()=>{requestId.current+=1}},[])
 
   useEffect(()=>{
     let live=true
