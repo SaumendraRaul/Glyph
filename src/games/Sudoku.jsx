@@ -80,6 +80,23 @@ export default function Sudoku({onComplete}){
     return r===sr||c===sc||(Math.floor(r/3)===Math.floor(sr/3)&&Math.floor(c/3)===Math.floor(sc/3))
   }
 
+  useEffect(()=>{
+    function key(event){
+      const target=event.target
+      if(target instanceof HTMLElement&&(target.matches('input, textarea, select')||target.isContentEditable))return
+      if(/^[1-9]$/.test(event.key)){event.preventDefault();place(Number(event.key));return}
+      if(event.key==='Backspace'||event.key==='Delete'){event.preventDefault();erase();return}
+      if(event.key.toLowerCase()==='n'){event.preventDefault();setNoteMode((v)=>!v);return}
+      if(selected==null)return
+      if(event.key==='ArrowLeft'){event.preventDefault();setSelected((v)=>Math.max(0,v-1))}
+      if(event.key==='ArrowRight'){event.preventDefault();setSelected((v)=>Math.min(80,v+1))}
+      if(event.key==='ArrowUp'){event.preventDefault();setSelected((v)=>Math.max(0,v-9))}
+      if(event.key==='ArrowDown'){event.preventDefault();setSelected((v)=>Math.min(80,v+9))}
+    }
+    window.addEventListener('keydown',key)
+    return()=>window.removeEventListener('keydown',key)
+  })
+
   return(
     <div className="game-panel sudoku-panel">
       <div className="game-toolbar">
