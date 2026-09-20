@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { GENERATIONS, fetchPokemonById, pokemonSuggestions, randomPokemonId, resolvePokemonGuess } from '../lib/pokemon'
 
 const MAX_GUESSES=6
@@ -16,8 +16,10 @@ export default function PokemonGuess({onComplete}){
   const [guesses,setGuesses]=useState([])
   const [status,setStatus]=useState('loading')
   const [error,setError]=useState('')
+  const requestId=useRef(0)
 
   async function reset(nextGen=generation){
+    const token=++requestId.current
     setGeneration(String(nextGen))
     setInput('')
     setSuggestions([])
@@ -26,15 +28,18 @@ export default function PokemonGuess({onComplete}){
     setError('')
     try{
       const id=randomPokemonId(String(nextGen))
-      setTarget(await fetchPokemonById(id))
+      const loaded=await fetchPokemonById(id)
+      if(token!==requestId.current)return
+      setTarget(loaded)
       setStatus('playing')
     }catch(err){
+      if(token!==requestId.current)return
       setError(err instanceof Error?err.message:'Could not load Pokémon.')
       setStatus('error')
     }
   }
 
-  useEffect(()=>{reset('ALL')},[])
+  useEffect(()=>{reset('ALL');return()=>{requestId.current+=1}},[])
 
   useEffect(()=>{
     let live=true
