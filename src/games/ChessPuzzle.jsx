@@ -9,7 +9,7 @@ const PUZZLES=[
   {id:3,difficulty:'MEDIUM',title:'Royal Fork',prompt:'White to move. Put the knight where king and queen both regret existing.',fen:'q3k3/8/8/1N6/8/8/6PP/6K1 w - - 0 1',from:'b5',to:'c7',solution:'Nc7+',motif:'FORK'},
   {id:4,difficulty:'MEDIUM',title:'Loose Queen',prompt:'White to move. The diagonal is doing all the work.',fen:'4k3/8/2q5/8/4B3/8/6PP/6K1 w - - 0 1',from:'e4',to:'c6',solution:'Bxc6+',motif:'SKEWER'},
   {id:5,difficulty:'HARD',title:'Rook Invasion',prompt:'White to move. Find the forcing rook entry.',fen:'6k1/5ppp/8/8/8/6Q1/5PPP/4R1K1 w - - 0 1',from:'e1',to:'e8',solution:'Re8+',motif:'INVASION'},
-  {id:6,difficulty:'HARD',title:'Cornered King',prompt:'White to move. The queen has one square that ends the argument.',fen:'7k/6pp/8/8/3Q4/8/6PP/6K1 w - - 0 1',from:'d4',to:'h8',solution:'Qh8+',motif:'QUEEN LINE'},
+  {id:6,difficulty:'HARD',title:'Cornered King',prompt:'White to move. The queen has one forcing entry on the eighth rank.',fen:'6k1/7p/8/8/3Q4/8/6PP/6K1 w - - 0 1',from:'d4',to:'h8',solution:'Qh8+',motif:'QUEEN LINE'},
 ]
 
 function parseFen(fen){
