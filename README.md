@@ -1,8 +1,8 @@
 # Glyph
 
-**Glyph** is a responsive browser mini-game arcade built with React and Vite. V2 ships ten games behind one shared progression system.
+**Glyph** is a responsive browser mini-game arcade built with React and Vite. V3 ships nineteen games behind one shared progression system.
 
-## V2 games
+## V3 games
 
 - **Word Grid** — Wordle-style 5-letter guessing with a real English guess dictionary.
 - **Hangman** — 64 curated words across Easy/Medium/Hard, difficulty filtering, physical keyboard input, a one-use hint that costs a life, wrong-letter tracking, six-stage danger feedback, and score tracking.
@@ -14,6 +14,15 @@
 - **Reaction Test** — five reaction rounds with false-start handling and average reaction time.
 - **Pokémon Connections** — themed 16-word grouping puzzles built from Pokémon, evolutions, regions, legendary groups, and other franchise knowledge.
 - **Statle** — six Pokémon, hidden-stat picks with full reveal after selection, Gen 1–9 + Mega filters, all 93 distinct Mega Evolutions including Legends: Z-A / Mega Dimension additions, PokéAPI sprites/artwork, and a 600+ BST target.
+- **Connect ४** — Connect Four with Easy/Medium/Hard AI, alpha-beta minimax, immediate tactical blocking, and local 2-player.
+- **PokéGuess** — National Dex guessing with Gen filters, autocomplete, higher/lower comparisons, types, size feedback, and progressive clues.
+- **Guesswork** — clue-ladder guessing across tech, space, nature, world, objects, and games.
+- **Type Rush** — timed typing with difficulty, 30/60/90-second modes, WPM, accuracy, combo, and score.
+- **Checkmate** — curated chess tactics with difficulty filters, interactive board selection, hints, timer, and adjusted scoring.
+- **Crosswire** — compact crossword-style word squares with Across/Down clues, keyboard navigation, hints, checking, and timer.
+- **Sudoku** — verified unique-solution 9×9 puzzles with Easy/Medium/Hard, notes, hints, mistakes, and timing.
+- **Silhouette** — Pokémon silhouette guessing with Gen filters and progressively unlocked clues.
+- **Deadcenter** — aim trainer with three target-size/speed modes, accuracy, reaction time, misses, and score.
 
 ## Shared arcade features
 
@@ -22,7 +31,7 @@
 - Win streak
 - Per-game played / wins / best score
 - Persistent local scoreboards with top runs and recent attempt history
-- 14 achievements
+- 95 achievements
 - Daily featured game
 - Responsive desktop/mobile UI
 - Compact expandable mobile game tiles and collapsible achievements
@@ -51,16 +60,27 @@ src/
 ├── data/
 │   └── words.js
 ├── games/
+│   ├── AimTrainer.jsx
+│   ├── ChessPuzzle.jsx
+│   ├── ConnectFour.jsx
 │   ├── Connections.jsx
+│   ├── Crossword.jsx
 │   ├── Game2048.jsx
+│   ├── Guesswork.jsx
 │   ├── Hangman.jsx
 │   ├── MemoryMatch.jsx
 │   ├── Minesweeper.jsx
+│   ├── PokemonConnections.jsx
+│   ├── PokemonGuess.jsx
+│   ├── PokemonSilhouette.jsx
 │   ├── ReactionTest.jsx
 │   ├── Snake.jsx
 │   ├── Statle.jsx
+│   ├── Sudoku.jsx
+│   ├── TypingRush.jsx
 │   └── WordGrid.jsx
 ├── lib/
+│   ├── pokemon.js
 │   └── profile.js
 ├── App.jsx
 ├── main.jsx
@@ -110,7 +130,7 @@ Android's hardware Back button returns from an active game to the Glyph dashboar
 
 ## Future candidates
 
-Sudoku, Scribble, Breakout, chess puzzles, 2048 variants, typing games, and multiplayer modes.
+Breakout, Scribble, Reversi, chess-puzzle expansion packs, daily challenges, cloud sync, and multiplayer modes.
 
 ---
 
