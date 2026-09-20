@@ -31,7 +31,9 @@ function rangeLabel(value, step, unit = '') {
 }
 
 function typeClass(type, slot, target) {
-  const exact = type && type === target.types[slot]
+  const targetType = target.types[slot]
+  if (!type && !targetType) return 'match'
+  const exact = type && type === targetType
   const elsewhere = type && target.types.includes(type)
   return exact ? 'match' : elsewhere ? 'partial' : ''
 }
@@ -72,6 +74,7 @@ export default function PokemonGuess({ onComplete }) {
 
     setGeneration(String(nextGen))
     setDifficulty(nextDifficulty)
+    setTarget(null)
     setInput('')
     setSuggestions([])
     setGuesses([])
