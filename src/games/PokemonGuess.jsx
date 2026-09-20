@@ -73,7 +73,7 @@ export default function PokemonGuess({onComplete}){
       onComplete({won:true,score:next.length,lowerIsBetter:true,bonusXp:Math.max(8,42-next.length*6)})
     }else if(next.length>=MAX_GUESSES){
       setStatus('lost')
-      onComplete({won:false,score:MAX_GUESSES,lowerIsBetter:true})
+      onComplete({won:false})
     }
   }
 
