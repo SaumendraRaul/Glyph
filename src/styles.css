@@ -5105,3 +5105,172 @@ footer {
   }
   .cross-keyboard > div { gap: 3px; }
 }
+
+
+/* PokéGuess V2 */
+.pokeguess-settings {
+  margin-bottom: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.pokeguess-settings > div {
+  display: grid;
+  gap: 6px;
+}
+
+.pokeguess-help {
+  margin-bottom: 12px;
+  padding: 9px 11px;
+  border: 1px solid #2b333f;
+  border-radius: 10px;
+  background: #0e1319;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  color: #697484;
+  font: 500 .5rem 'DM Mono', monospace;
+}
+
+.pokeguess-help .legend-exact {
+  color: #87e49a;
+}
+
+.pokeguess-help .legend-partial {
+  color: #ffe07a;
+}
+
+.poke-clue-area {
+  margin-bottom: 14px;
+  padding: 12px;
+  border: 1px solid #2d3440;
+  border-radius: 13px;
+  background:
+    radial-gradient(circle at 100% 0, rgba(255,216,77,.05), transparent 34%),
+    #0e1319;
+}
+
+.poke-clue-head {
+  margin-bottom: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.poke-clue-head > div {
+  display: grid;
+  gap: 3px;
+}
+
+.poke-clue-head strong {
+  font-size: .72rem;
+}
+
+.pokeguess-panel .poke-clue-ladder {
+  margin-bottom: 0;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+.pokeguess-panel .poke-clue-ladder > div {
+  min-height: 62px;
+}
+
+.pokeguess-panel .poke-clue-ladder > div:last-child {
+  grid-column: auto;
+}
+
+.poke-table-wrap {
+  margin-top: 12px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: thin;
+}
+
+.poke-guess-header,
+.pokeguess-panel .poke-guess-row {
+  min-width: 760px;
+  display: grid;
+  grid-template-columns: 1.55fr .55fr .85fr .85fr .78fr .9fr .65fr;
+  gap: 5px;
+  align-items: center;
+}
+
+.poke-guess-header {
+  min-height: 30px;
+  padding: 0 8px;
+  color: #596473;
+  font: 600 .46rem 'DM Mono', monospace;
+  letter-spacing: .06em;
+}
+
+.pokeguess-panel .poke-guess-history {
+  margin-top: 0;
+}
+
+.pokeguess-panel .poke-guess-row > span {
+  display: block !important;
+  white-space: nowrap;
+}
+
+.poke-guess-mon {
+  min-width: 0;
+}
+
+.poke-guess-row.correct {
+  background:
+    linear-gradient(90deg, rgba(87,185,104,.08), transparent 55%),
+    #10151b;
+}
+
+@media (max-width: 680px) {
+  .pokeguess-help {
+    align-items: flex-start;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 10px;
+  }
+
+  .poke-clue-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .poke-clue-head .secondary-btn {
+    width: 100%;
+  }
+
+  .pokeguess-panel .poke-clue-ladder {
+    grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+
+  .pokeguess-panel .poke-clue-ladder > div:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .pokeguess-panel .poke-guess-row {
+    grid-template-columns: 1.55fr .55fr .85fr .85fr .78fr .9fr .65fr;
+  }
+
+  .pokeguess-panel .poke-guess-row > span:nth-child(4),
+  .pokeguess-panel .poke-guess-row > span:nth-child(5) {
+    display: block !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .pokeguess-settings .filter-chips {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 2px;
+  }
+
+  .pokeguess-help {
+    grid-template-columns: 1fr;
+  }
+
+  .pokeguess-panel .poke-clue-ladder {
+    grid-template-columns: 1fr 1fr;
+  }
+}
