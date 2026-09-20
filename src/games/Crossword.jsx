@@ -27,6 +27,24 @@ const PUZZLES=[
     across:['Beloved or expensive','Lack of difficulty','Largest continent','Back part'],
     down:['Term in a friendly letter','Make less difficult','Continent containing India','Raise young, or the back'],
   },
+  {
+    name:'Body & Mind',
+    rows:['LIMB','IDEA','MEAL','BALL'],
+    across:['Arm or leg','A thought','Breakfast, lunch or dinner','Round sporting object'],
+    down:['Branch of a tree, or an arm or leg','Concept in the mind','Food served at a sitting','A formal dance'],
+  },
+  {
+    name:'Desert Edge',
+    rows:['SAND','AREA','NEAR','DARN'],
+    across:['Tiny grains on a beach','Region or extent','Close by','Repair with thread'],
+    down:['Beach material','Surface measurement','Not far away','Mild exclamation'],
+  },
+  {
+    name:'Running Late',
+    rows:['LATE','AREA','TEAR','EARS'],
+    across:['Not on time','Region or extent','Rip apart','Organs for hearing'],
+    down:['After the expected time','Surface measurement','Drop from an eye, or rip','They help with hearing'],
+  },
 ]
 
 function choose(exclude){
