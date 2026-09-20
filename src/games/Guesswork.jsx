@@ -78,7 +78,7 @@ export default function Guesswork({ onComplete }) {
       setStatus('lost')
       setClueCount(entry.clues.length)
       setMessage(`Answer: ${entry.answer}.`)
-      onComplete({won:false,score:0,lowerIsBetter:false})
+      onComplete({won:false})
     } else {
       setClueCount((value)=>Math.min(entry.clues.length,value+1))
       setMessage('Nope. Another clue has been unlocked.')
