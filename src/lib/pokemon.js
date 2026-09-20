@@ -37,12 +37,16 @@ export async function fetchPokemonIndex() {
         if (!response.ok) throw new Error(`PokéAPI returned ${response.status}`)
         return response.json()
       })
-      .then((data) => data.results.map((item, index) => ({
-        id: index + 1,
-        apiName: item.name,
-        name: prettyPokemonName(item.name),
-        normalized: normalizePokemonGuess(item.name),
-      })))
+      .then((data) => data.results.map((item, index) => {
+        const match = String(item.url || '').match(/\/pokemon-species\/(\d+)\/?$/)
+        const id = match ? Number(match[1]) : index + 1
+        return {
+          id,
+          apiName: item.name,
+          name: prettyPokemonName(item.name),
+          normalized: normalizePokemonGuess(item.name),
+        }
+      }))
       .catch((error) => {
         indexPromise = null
         throw error
@@ -68,6 +72,7 @@ export async function fetchPokemonById(id) {
     height: data.height / 10,
     weight: data.weight / 10,
     stats: Object.fromEntries(data.stats.map((entry) => [entry.stat.name, entry.base_stat])),
+    bst: data.stats.reduce((sum, entry) => sum + entry.base_stat, 0),
     sprite:
       data.sprites?.other?.['official-artwork']?.front_default ||
       data.sprites?.other?.home?.front_default ||
@@ -91,12 +96,17 @@ export function randomPokemonId(generation = 'ALL', exclude = []) {
   return pool[Math.floor(Math.random() * pool.length)]
 }
 
-export async function pokemonSuggestions(query, limit = 8) {
+export async function pokemonSuggestions(query, limit = 8, generation = 'ALL') {
   const normalized = normalizePokemonGuess(query)
   if (!normalized) return []
   const index = await fetchPokemonIndex()
+  const gen = GENERATIONS.find((item) => item.id === String(generation)) || GENERATIONS[0]
   return index
-    .filter((item) => item.normalized.startsWith(normalized) || item.normalized.includes(normalized))
+    .filter((item) =>
+      item.id >= gen.start &&
+      item.id <= gen.end &&
+      (item.normalized.startsWith(normalized) || item.normalized.includes(normalized))
+    )
     .sort((a, b) => {
       const aStarts = a.normalized.startsWith(normalized) ? 0 : 1
       const bStarts = b.normalized.startsWith(normalized) ? 0 : 1
@@ -105,8 +115,14 @@ export async function pokemonSuggestions(query, limit = 8) {
     .slice(0, limit)
 }
 
-export async function resolvePokemonGuess(value) {
+export async function resolvePokemonGuess(value, generation = 'ALL') {
   const normalized = normalizePokemonGuess(value)
   const index = await fetchPokemonIndex()
-  return index.find((item) => item.normalized === normalized) || null
+  const gen = GENERATIONS.find((item) => item.id === String(generation)) || GENERATIONS[0]
+  return index.find(
+    (item) =>
+      item.id >= gen.start &&
+      item.id <= gen.end &&
+      item.normalized === normalized,
+  ) || null
 }
