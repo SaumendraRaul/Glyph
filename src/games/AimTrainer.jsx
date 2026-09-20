@@ -18,6 +18,8 @@ export default function AimTrainer({ onComplete }) {
   const targetTimer = useRef(null)
   const completed = useRef(false)
 
+  useEffect(() => () => window.clearTimeout(targetTimer.current), [])
+
   function spawn() {
     const size = MODES[mode].size
     const zone = zoneRef.current
