@@ -71,6 +71,11 @@ export default function ChessPuzzle({onComplete}){
       return
     }
 
+    if(board[index]&&board[index]===board[index].toUpperCase()){
+      setSelected(index)
+      return
+    }
+
     const from=squareName(selected)
     const to=squareName(index)
 
