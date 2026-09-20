@@ -64,7 +64,7 @@ export default function Sudoku({onComplete}){
     }
     if(value!==solution[selected]){
       const nextMistakes=mistakes+1;setMistakes(nextMistakes)
-      if(nextMistakes>=3){setStatus('lost');onComplete({won:false,score:time+nextMistakes*30,lowerIsBetter:true})}
+      if(nextMistakes>=3){setStatus('lost');onComplete({won:false})}
       return
     }
     setGrid((current)=>current.map((cell,i)=>i===selected?value:cell))
