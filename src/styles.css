@@ -83,7 +83,8 @@ button:not(:disabled):active {
 }
 
 .topbar {
-  min-height: 78px;
+  min-height: calc(78px + env(safe-area-inset-top));
+  padding-top: env(safe-area-inset-top);
   border-bottom: 1px solid var(--line);
   display: flex;
   align-items: center;
@@ -3252,7 +3253,7 @@ footer {
   .app-shell { width: min(100% - 20px, 1180px); }
 
   .topbar {
-    min-height: 64px;
+    min-height: calc(64px + env(safe-area-inset-top));
     position: sticky;
     top: 0;
     z-index: 20;
