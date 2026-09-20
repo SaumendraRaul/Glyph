@@ -66,6 +66,47 @@ src/
 └── styles.css
 ```
 
+
+## Android APK
+
+Glyph can also run as a native Android app through Capacitor 8.
+
+### GitHub Actions APK
+
+The repository includes `.github/workflows/android-apk.yml`. Relevant pushes to `main` and manual workflow runs build an installable debug APK.
+
+After a successful **Build Android APK** run:
+
+1. Open the workflow run in the GitHub **Actions** tab.
+2. Scroll to **Artifacts**.
+3. Download **Glyph-Android-APK**.
+4. Extract `Glyph-debug.apk`.
+5. Copy it to an Android device and install it. Android may ask for permission to install apps from the browser/file manager used to open it.
+
+The debug APK is intended for direct installation/testing. A Play Store release should use a signed release build / AAB with a private signing key.
+
+### Build locally
+
+First-time Android project creation:
+
+```bash
+npm install
+npm run android:add
+npm run android:open
+```
+
+After the Android project already exists:
+
+```bash
+npm run android:sync
+npm run android:open
+```
+
+The Android web build uses relative Vite asset paths so it works inside the Capacitor WebView while the normal `npm run build` remains configured for GitHub Pages.
+
+Android's hardware Back button returns from an active game to the Glyph dashboard before exiting the app.
+
+
 ## Future candidates
 
 Sudoku, Scribble, Breakout, chess puzzles, 2048 variants, typing games, and multiplayer modes.
