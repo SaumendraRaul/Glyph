@@ -186,8 +186,7 @@ export default function ConnectFour({ onComplete }) {
     setStatus(piece === PLAYER ? 'won' : 'lost')
     onComplete({
       won,
-      score: nextMoves,
-      lowerIsBetter: true,
+      ...(won ? { score: nextMoves, lowerIsBetter: true } : {}),
       bonusXp: mode === 'AI' && piece === PLAYER ? (difficulty === 'HARD' ? 40 : difficulty === 'MEDIUM' ? 24 : 10) : 0,
     })
     return true
@@ -207,7 +206,7 @@ export default function ConnectFour({ onComplete }) {
 
     if (!availableColumns(result.board).length) {
       setStatus('draw')
-      onComplete({ won: false, score: nextMoves, lowerIsBetter: true })
+      onComplete({ won: false })
       return
     }
 
@@ -234,7 +233,7 @@ export default function ConnectFour({ onComplete }) {
 
       if (!availableColumns(cpuResult.board).length) {
         setStatus('draw')
-        onComplete({ won: false, score: cpuMoves, lowerIsBetter: true })
+        onComplete({ won: false })
       }
     }, difficulty === 'HARD' ? 260 : 170)
   }
