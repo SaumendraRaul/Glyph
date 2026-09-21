@@ -10,6 +10,21 @@ function pickAnswer() {
   return WORDLE_ANSWERS[Math.floor(Math.random() * WORDLE_ANSWERS.length)]
 }
 
+function dateKey() {
+  const now = new Date()
+  return `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`
+}
+
+function dailyAnswer() {
+  const key = dateKey()
+  let hash = 2166136261
+  for (const char of key) {
+    hash ^= char.charCodeAt(0)
+    hash = Math.imul(hash, 16777619)
+  }
+  return WORDLE_ANSWERS[Math.abs(hash) % WORDLE_ANSWERS.length]
+}
+
 function scoreGuess(guess, answer) {
   const result = Array(COLS).fill('absent')
   const left = {}
@@ -30,6 +45,39 @@ function scoreGuess(guess, answer) {
   return result
 }
 
+function hardModeViolation(guess, guesses) {
+  const fixed = Array(COLS).fill(null)
+  const minimumCounts = {}
+
+  guesses.forEach(({ word, marks }) => {
+    const seen = {}
+    marks.forEach((mark, index) => {
+      if (mark === 'correct') fixed[index] = word[index]
+      if (mark === 'correct' || mark === 'present') {
+        seen[word[index]] = (seen[word[index]] || 0) + 1
+      }
+    })
+    Object.entries(seen).forEach(([letter, count]) => {
+      minimumCounts[letter] = Math.max(minimumCounts[letter] || 0, count)
+    })
+  })
+
+  for (let index = 0; index < COLS; index += 1) {
+    if (fixed[index] && guess[index] !== fixed[index]) {
+      return `Position ${index + 1} must be ${fixed[index]}.`
+    }
+  }
+
+  for (const [letter, minimum] of Object.entries(minimumCounts)) {
+    const actual = guess.split('').filter((value) => value === letter).length
+    if (actual < minimum) {
+      return `Hard mode requires ${minimum > 1 ? minimum + ' ' : ''}${letter}${minimum > 1 ? 's' : ''}.`
+    }
+  }
+
+  return null
+}
+
 export default function WordGrid({ onComplete }) {
   const dictionary = useMemo(() => {
     const words = englishWords
@@ -38,6 +86,8 @@ export default function WordGrid({ onComplete }) {
     return new Set([...words, ...WORDLE_ANSWERS])
   }, [])
 
+  const [gameMode, setGameMode] = useState('PRACTICE')
+  const [hardMode, setHardMode] = useState(false)
   const [answer, setAnswer] = useState(pickAnswer)
   const [guesses, setGuesses] = useState([])
   const [current, setCurrent] = useState('')
@@ -45,13 +95,22 @@ export default function WordGrid({ onComplete }) {
   const [message, setMessage] = useState('')
   const [keyStates, setKeyStates] = useState({})
 
-  function reset() {
-    setAnswer(pickAnswer())
+  function answerFor(mode) {
+    return mode === 'DAILY' ? dailyAnswer() : pickAnswer()
+  }
+
+  function reset(nextMode = gameMode) {
+    setAnswer(answerFor(nextMode))
     setGuesses([])
     setCurrent('')
     setStatus('playing')
     setMessage('')
     setKeyStates({})
+  }
+
+  function switchMode(nextMode) {
+    setGameMode(nextMode)
+    reset(nextMode)
   }
 
   function submit() {
@@ -63,6 +122,14 @@ export default function WordGrid({ onComplete }) {
     if (!dictionary.has(current)) {
       setMessage(`${current} is not in the dictionary.`)
       return
+    }
+
+    if (hardMode && guesses.length) {
+      const violation = hardModeViolation(current, guesses)
+      if (violation) {
+        setMessage(violation)
+        return
+      }
     }
 
     const marks = scoreGuess(current, answer)
@@ -82,12 +149,19 @@ export default function WordGrid({ onComplete }) {
     if (current === answer) {
       const attempts = nextGuesses.length
       setStatus('won')
-      setMessage(`Solved in ${attempts}/6.`)
+      setMessage(
+        gameMode === 'DAILY'
+          ? `Daily solved in ${attempts}/6.`
+          : `Solved in ${attempts}/6.`,
+      )
       onComplete({
         won: true,
         score: attempts,
         lowerIsBetter: true,
-        bonusXp: (ROWS - attempts) * 7,
+        bonusXp: Math.min(
+          40,
+          (ROWS - attempts) * 7 + (hardMode ? 8 : 0) + (gameMode === 'DAILY' ? 4 : 0),
+        ),
       })
       return
     }
@@ -118,6 +192,11 @@ export default function WordGrid({ onComplete }) {
   useEffect(() => {
     function onKeyDown(event) {
       if (event.ctrlKey || event.metaKey || event.altKey) return
+      const target = event.target
+      if (
+        target instanceof HTMLElement &&
+        (target.matches('input, textarea, select') || target.isContentEditable)
+      ) return
       const key = event.key.toUpperCase()
       if (key === 'ENTER' || key === 'BACKSPACE' || /^[A-Z]$/.test(key)) {
         event.preventDefault()
@@ -140,12 +219,40 @@ export default function WordGrid({ onComplete }) {
 
   return (
     <div className="game-panel word-panel">
+      <div className="word-mode-bar">
+        <div className="filter-chips">
+          {['PRACTICE', 'DAILY'].map((item) => (
+            <button
+              className={`filter-chip ${gameMode === item ? 'active' : ''}`}
+              onClick={() => switchMode(item)}
+              key={item}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+
+        <button
+          className={`word-hard-toggle ${hardMode ? 'active' : ''}`}
+          onClick={() => setHardMode((value) => !value)}
+        >
+          <span>HARD MODE</span>
+          <small>{hardMode ? 'revealed clues enforced' : 'optional'}</small>
+        </button>
+      </div>
+
       <div className="game-toolbar">
         <div>
-          <span className="micro">DICTIONARY ONLINE</span>
-          <strong>{dictionary.size.toLocaleString()} valid 5-letter guesses</strong>
+          <span className="micro">{gameMode === 'DAILY' ? 'DAILY GRID' : 'DICTIONARY ONLINE'}</span>
+          <strong>
+            {gameMode === 'DAILY'
+              ? `${dateKey()} · same word all day`
+              : `${dictionary.size.toLocaleString()} valid 5-letter guesses`}
+          </strong>
         </div>
-        <button className="secondary-btn" onClick={reset}>New word</button>
+        <button className="secondary-btn" onClick={() => reset()}>
+          {gameMode === 'DAILY' ? 'Restart daily' : 'New word'}
+        </button>
       </div>
 
       <div className="word-board" aria-label="Word Grid board">
@@ -161,7 +268,13 @@ export default function WordGrid({ onComplete }) {
         )}
       </div>
 
-      <div className={`game-message ${status}`}>{message || 'Type or use the keyboard below.'}</div>
+      <div className={`game-message ${status}`}>
+        {message || (
+          hardMode
+            ? 'Hard mode: greens stay fixed and revealed letters must be reused.'
+            : 'Type or use the keyboard below.'
+        )}
+      </div>
 
       <div className="keypad">
         {KEY_ROWS.map((letters, rowIndex) => (
