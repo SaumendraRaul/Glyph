@@ -5,7 +5,7 @@
 ## V3 games
 
 - **Word Grid** — Wordle-style 5-letter guessing with a real English guess dictionary.
-- **Hangman** — 64 curated words across Easy/Medium/Hard, difficulty filtering, physical keyboard input, a one-use hint that costs a life, wrong-letter tracking, six-stage danger feedback, and score tracking.
+- **Hangman** — 120-word solo bank across Easy/Medium/Hard, local 2-player secret-word mode, 4/6/8/10-life presets, three-tier clue systems, paid hints that cost lives, physical keyboard input, and responsive touch controls.
 - **Minesweeper** — 9×9 beginner board, 10 mines, first-click safety, recursive clearing, right-click flags, and mobile flag mode.
 - **Memory Match** — 4×4 pair matching with move and time tracking.
 - **2048** — keyboard, swipe, and touch controls with score tracking and a 2048 win condition.
