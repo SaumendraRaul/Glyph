@@ -5274,3 +5274,431 @@ footer {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+
+/* Hangman V3 — modes, life presets and local 2-player */
+.hang-mode-switch {
+  margin-bottom: 12px;
+  padding: 4px;
+  border: 1px solid #2c3440;
+  border-radius: 11px;
+  background: #0c1117;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.hang-mode-switch button {
+  min-height: 42px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: #626d7c;
+  font: 700 .62rem 'DM Mono', monospace;
+  letter-spacing: .08em;
+}
+
+.hang-mode-switch button.active,
+.hang-mode-switch button.active-duo {
+  border-color: #47405d;
+  background:
+    linear-gradient(145deg, rgba(158,131,255,.09), transparent 70%),
+    #151922;
+  color: #d9d1ff;
+}
+
+.hang-mode-switch button.active-duo {
+  border-color: #42553d;
+  background:
+    linear-gradient(145deg, rgba(155,232,128,.08), transparent 70%),
+    #141a17;
+  color: #bcefac;
+}
+
+.hang-config-row {
+  margin-bottom: 12px;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.hang-config-row > div {
+  display: grid;
+  gap: 6px;
+}
+
+.hang-config-row .filter-chips {
+  margin: 0;
+}
+
+.hangman-toolbar-info {
+  flex: 1 1 auto;
+}
+
+.hangman-stage-strip .hang-stage-dots {
+  flex: 1 1 auto;
+  justify-content: flex-end;
+}
+
+.hang-stage-dots span {
+  width: auto;
+  min-width: 16px;
+  max-width: 30px;
+  flex: 1 1 20px;
+}
+
+.hang-stage-dots span.hint-spent {
+  background: #8f78d6;
+  box-shadow: 0 0 10px rgba(143,120,214,.14);
+}
+
+.hang-stage-dots span.wrong-spent {
+  background: #b65a63;
+}
+
+.hang-word span.separator {
+  width: 14px;
+  min-width: 14px;
+  border-bottom: 0;
+  color: #737d8c;
+}
+
+.hang-hints-stack {
+  margin-bottom: 11px;
+  display: grid;
+  gap: 7px;
+}
+
+.hang-hints-stack .hang-hint-card {
+  margin: 0;
+}
+
+.hang-hints-stack .hang-hint-card:nth-child(2) {
+  border-color: #423955;
+  background:
+    linear-gradient(90deg, rgba(158,131,255,.07), transparent 70%),
+    #11151c;
+}
+
+.hang-hints-stack .hang-hint-card:nth-child(3) {
+  border-color: #4a3b55;
+  background:
+    linear-gradient(90deg, rgba(190,131,255,.075), transparent 70%),
+    #12151c;
+}
+
+/* Player 1 setup */
+.duo-setup {
+  padding: 18px;
+  border: 1px solid #303844;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 100% 0, rgba(155,232,128,.055), transparent 34%),
+    #0d1218;
+  display: grid;
+  gap: 15px;
+}
+
+.duo-setup-head {
+  display: grid;
+  gap: 5px;
+}
+
+.duo-setup-head h3 {
+  margin: 0;
+  font-size: 1.45rem;
+  letter-spacing: -.04em;
+}
+
+.duo-setup-head p {
+  max-width: 620px;
+  margin: 0;
+  color: #778190;
+  font-size: .74rem;
+  line-height: 1.55;
+}
+
+.duo-field {
+  display: grid;
+  gap: 6px;
+}
+
+.duo-field > span {
+  color: #707a89;
+  font: 600 .54rem 'DM Mono', monospace;
+  letter-spacing: .08em;
+}
+
+.duo-field > span i {
+  color: #4f5967;
+  font-style: normal;
+  font-weight: 500;
+}
+
+.duo-field > input,
+.duo-secret-input input {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid #343d49;
+  border-radius: 10px;
+  background: #10151b;
+  color: #edf2f7;
+  padding: 0 13px;
+  outline: none;
+  font: 600 .78rem 'DM Mono', monospace;
+}
+
+.duo-field > input:focus,
+.duo-secret-input input:focus {
+  border-color: #5b6b4d;
+  box-shadow: 0 0 0 3px rgba(155,232,128,.055);
+}
+
+.duo-field > small {
+  color: #535d6b;
+  font-size: .58rem;
+}
+
+.duo-secret-input {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 6px;
+}
+
+.duo-secret-input button {
+  min-width: 70px;
+  border: 1px solid #343d49;
+  border-radius: 10px;
+  background: #171c24;
+  color: #8791a0;
+  font: 700 .54rem 'DM Mono', monospace;
+}
+
+.duo-hint-builder {
+  padding: 13px;
+  border: 1px solid #28313c;
+  border-radius: 12px;
+  background: #0b1016;
+  display: grid;
+  gap: 9px;
+}
+
+.duo-hint-head {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.duo-hint-head > div {
+  display: grid;
+  gap: 3px;
+}
+
+.duo-hint-head strong {
+  font-size: .7rem;
+}
+
+.duo-hint-head small {
+  color: #586271;
+  font-size: .58rem;
+}
+
+.duo-hint-input input {
+  min-height: 43px;
+}
+
+.duo-error {
+  padding: 10px 12px;
+  border: 1px solid #5b343b;
+  border-radius: 9px;
+  background: #231619;
+  color: #db8991;
+  font-size: .68rem;
+}
+
+.duo-lock-btn {
+  width: 100%;
+  justify-content: space-between;
+}
+
+/* Hand-off screen */
+.duo-pass-panel {
+  min-height: 480px;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.duo-pass-lock {
+  width: 78px;
+  height: 78px;
+  margin-bottom: 5px;
+  border: 1px solid #43513d;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle, rgba(155,232,128,.09), transparent 68%),
+    #121814;
+  color: #b9ecaa;
+  display: grid;
+  place-items: center;
+  font-size: 2.6rem;
+  transform: rotate(-12deg);
+}
+
+.duo-pass-panel h3 {
+  margin: 0;
+  font-size: clamp(1.5rem,5vw,2.3rem);
+  letter-spacing: -.045em;
+}
+
+.duo-pass-panel > p {
+  max-width: 520px;
+  margin: 0;
+  color: #74808e;
+  font-size: .75rem;
+  line-height: 1.55;
+}
+
+.duo-pass-meta {
+  width: min(580px,100%);
+  margin: 14px 0 6px;
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 7px;
+}
+
+.duo-pass-meta > div {
+  min-height: 68px;
+  padding: 9px;
+  border: 1px solid #2b333d;
+  border-radius: 10px;
+  background: #10151b;
+  display: grid;
+  align-content: center;
+  gap: 4px;
+}
+
+.duo-pass-meta span {
+  color: #5c6675;
+  font: 500 .48rem 'DM Mono', monospace;
+}
+
+.duo-pass-meta strong {
+  color: #dfe6ee;
+  font-size: .82rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.duo-ready-btn {
+  width: min(580px,100%);
+  justify-content: space-between;
+}
+
+@media (max-width: 680px) {
+  .hang-config-row {
+    align-items: stretch;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .hang-config-row .filter-chips {
+    display: grid;
+    grid-template-columns: repeat(4,minmax(0,1fr));
+  }
+
+  .hang-config-row .filter-chip {
+    min-width: 0;
+    padding: 0 5px;
+  }
+
+  .hangman-toolbar-info {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+  }
+
+  .hangman-toolbar-info > div,
+  .hangman-toolbar-info > div:last-child {
+    min-width: 0;
+    grid-column: auto;
+  }
+
+  .hangman-toolbar-actions {
+    width: 100%;
+  }
+
+  .hangman-toolbar-actions .secondary-btn {
+    width: 100%;
+  }
+
+  .hangman-stage-strip .hang-stage-dots {
+    justify-content: stretch;
+  }
+
+  .hang-stage-dots span {
+    min-width: 0;
+    max-width: none;
+  }
+
+  .duo-setup {
+    padding: 13px;
+  }
+
+  .duo-hint-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .duo-pass-panel {
+    min-height: 420px;
+  }
+
+  .duo-pass-meta {
+    grid-template-columns: repeat(2,1fr);
+  }
+}
+
+@media (max-width: 430px) {
+  .hang-mode-switch button {
+    min-height: 39px;
+  }
+
+  .hang-config-row .filter-chips {
+    gap: 4px;
+  }
+
+  .hang-config-row .filter-chip {
+    font-size: .5rem;
+  }
+
+  .hangman-toolbar-info {
+    grid-template-columns: repeat(2,1fr);
+  }
+
+  .duo-secret-input {
+    grid-template-columns: 1fr;
+  }
+
+  .duo-secret-input button {
+    min-height: 38px;
+  }
+
+  .duo-pass-meta {
+    gap: 5px;
+  }
+
+  .duo-pass-meta > div {
+    min-height: 58px;
+  }
+
+  .hang-keyboard-note {
+    flex-wrap: wrap;
+  }
+}
