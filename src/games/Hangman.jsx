@@ -78,7 +78,7 @@ export default function Hangman({ onComplete }) {
   const lives = Math.max(0, maxLives - strikes)
   const figureStage = strikes === 0
     ? 0
-    : Math.min(6, Math.ceil((strikes / maxLives) * 6))
+    : Math.min(6, Math.max(1, Math.floor((strikes / maxLives) * 6)))
   const danger = lives <= Math.max(2, Math.ceil(maxLives * 0.25))
 
   const revealedCount = [...new Set(entry.word.split(''))]
