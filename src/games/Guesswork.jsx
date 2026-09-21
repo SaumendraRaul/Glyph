@@ -28,6 +28,7 @@ const BANK = [
 ]
 
 const CATEGORIES = ['ALL','TECH','SPACE','NATURE','WORLD','OBJECTS','GAMES']
+const ATTEMPT_OPTIONS = [3,4,6]
 
 function normalize(value) {
   return String(value).trim().toUpperCase().replace(/[^A-Z0-9]/g,'')
@@ -41,7 +42,10 @@ function pick(category, previous) {
 }
 
 export default function Guesswork({ onComplete }) {
+  const [playMode,setPlayMode] = useState('BUILTIN')
+  const [phase,setPhase] = useState('PLAY')
   const [category,setCategory] = useState('ALL')
+  const [maxWrong,setMaxWrong] = useState(4)
   const [entry,setEntry] = useState(() => pick('ALL'))
   const [guess,setGuess] = useState('')
   const [clueCount,setClueCount] = useState(1)
@@ -49,10 +53,17 @@ export default function Guesswork({ onComplete }) {
   const [status,setStatus] = useState('playing')
   const [message,setMessage] = useState('One clue. One answer. Try not to ask the internet.')
 
-  const possible = useMemo(() => [entry.answer,...entry.aliases].map(normalize),[entry])
+  const [customAnswer,setCustomAnswer] = useState('')
+  const [customCategory,setCustomCategory] = useState('')
+  const [customClues,setCustomClues] = useState(['','','',''])
+  const [customError,setCustomError] = useState('')
 
-  function reset(nextCategory=category) {
-    setEntry((current) => pick(nextCategory,current.answer))
+  const possible = useMemo(
+    () => [entry.answer,...entry.aliases].map(normalize),
+    [entry],
+  )
+
+  function clearRound() {
     setGuess('')
     setClueCount(1)
     setWrong([])
@@ -60,21 +71,92 @@ export default function Guesswork({ onComplete }) {
     setMessage('One clue. One answer. Try not to ask the internet.')
   }
 
+  function reset(nextCategory=category) {
+    if(playMode==='CUSTOM'){
+      setPhase('SETUP')
+      clearRound()
+      return
+    }
+    setEntry((current) => pick(nextCategory,current.answer))
+    clearRound()
+  }
+
+  function switchMode(nextMode){
+    setPlayMode(nextMode)
+    setCustomError('')
+    if(nextMode==='BUILTIN'){
+      setPhase('PLAY')
+      setEntry(pick(category,entry.answer))
+      clearRound()
+    }else{
+      setPhase('SETUP')
+      clearRound()
+    }
+  }
+
+  function updateCustomClue(index,value){
+    setCustomClues((current)=>current.map((clue,i)=>i===index?value.slice(0,140):clue))
+  }
+
+  function lockCustom(event){
+    event.preventDefault()
+    const answer=customAnswer.trim()
+    const clues=customClues.map((clue)=>clue.trim()).filter(Boolean)
+
+    if(normalize(answer).length<2){
+      setCustomError('Use an answer with at least two letters or digits.')
+      return
+    }
+    if(clues.length<2){
+      setCustomError('Give Player 2 at least two clues. Cruelty has limits.')
+      return
+    }
+    if(clues.some((clue)=>normalize(clue).includes(normalize(answer)))){
+      setCustomError('A clue contains the answer itself. Subtle.')
+      return
+    }
+
+    setEntry({
+      answer:answer.toUpperCase(),
+      aliases:[],
+      category:customCategory.trim().toUpperCase()||'CUSTOM',
+      clues,
+    })
+    setCustomError('')
+    clearRound()
+    setPhase('PASS')
+  }
+
+  function startCustom(){
+    clearRound()
+    setPhase('PLAY')
+  }
+
   function submit(event) {
     event?.preventDefault()
     if (status !== 'playing' || !guess.trim()) return
+
     if (possible.includes(normalize(guess))) {
-      const score = Math.max(100,1000 - (clueCount-1)*180 - wrong.length*90)
+      const score = Math.max(
+        100,
+        1000 - (clueCount-1)*180 - wrong.length*90 - (maxWrong-3)*20,
+      )
       setStatus('won')
       setMessage(`${entry.answer}. Correct with ${clueCount} clue${clueCount===1?'':'s'}.`)
-      onComplete({won:true,score,lowerIsBetter:false,bonusXp:Math.min(40,Math.round(score/30))})
+      onComplete({
+        won:true,
+        score,
+        lowerIsBetter:false,
+        bonusXp:Math.min(40,Math.round(score/30)+(playMode==='CUSTOM'?3:0)),
+      })
       return
     }
 
     const nextWrong=[...wrong,guess.trim()]
     setWrong(nextWrong)
     setGuess('')
-    if (nextWrong.length >= 4) {
+
+    if (nextWrong.length >= maxWrong) {
       setStatus('lost')
       setClueCount(entry.clues.length)
       setMessage(`Answer: ${entry.answer}.`)
@@ -91,24 +173,103 @@ export default function Guesswork({ onComplete }) {
     setMessage('Extra clue revealed. Your score ceiling just became slightly less majestic.')
   }
 
+  if(playMode==='CUSTOM'&&phase==='SETUP'){
+    return(
+      <div className="game-panel guesswork-panel">
+        <div className="guesswork-mode-switch">
+          <button onClick={()=>switchMode('BUILTIN')}>BUILT-IN</button>
+          <button className="active" onClick={()=>switchMode('CUSTOM')}>2 PLAYER</button>
+        </div>
+
+        <form className="guesswork-builder" onSubmit={lockCustom}>
+          <div className="guesswork-builder-head">
+            <span className="micro">PLAYER 1 · MYSTERY BUILDER</span>
+            <h3>Create the answer. Control the breadcrumb trail.</h3>
+            <p>Write clues from vague to strong. Player 2 sees them one at a time.</p>
+          </div>
+
+          <label>
+            <span>SECRET ANSWER</span>
+            <input type="password" value={customAnswer} onChange={(e)=>setCustomAnswer(e.target.value.slice(0,40))} placeholder="Hidden answer" autoComplete="off"/>
+          </label>
+
+          <label>
+            <span>CATEGORY <i>OPTIONAL</i></span>
+            <input value={customCategory} onChange={(e)=>setCustomCategory(e.target.value.slice(0,28))} placeholder="Movies, people, places…"/>
+          </label>
+
+          <div className="guesswork-builder-clues">
+            {customClues.map((clue,index)=>(
+              <label key={index}>
+                <span>CLUE {index+1}{index>1?' · OPTIONAL':''}</span>
+                <input value={clue} onChange={(e)=>updateCustomClue(index,e.target.value)} placeholder={index===0?'Most indirect clue':index===1?'Useful clue':index===2?'Stronger clue':'Last-resort clue'}/>
+              </label>
+            ))}
+          </div>
+
+          <div className="guesswork-builder-attempts">
+            <span className="micro">WRONG GUESSES ALLOWED</span>
+            <div className="filter-chips">
+              {ATTEMPT_OPTIONS.map((value)=><button type="button" className={`filter-chip ${maxWrong===value?'active':''}`} onClick={()=>setMaxWrong(value)} key={value}>{value}</button>)}
+            </div>
+          </div>
+
+          {customError&&<div className="guesswork-builder-error">{customError}</div>}
+
+          <button className="primary-btn" type="submit">Lock mystery & pass device <span>→</span></button>
+        </form>
+      </div>
+    )
+  }
+
+  if(playMode==='CUSTOM'&&phase==='PASS'){
+    return(
+      <div className="game-panel guesswork-panel guesswork-pass">
+        <div className="guesswork-pass-mark">?</div>
+        <span className="micro">MYSTERY LOCKED</span>
+        <h3>Pass the device to Player 2.</h3>
+        <p>The answer is hidden. Only the first clue appears when the round starts.</p>
+        <div className="guesswork-pass-meta">
+          <div><span>CATEGORY</span><strong>{entry.category}</strong></div>
+          <div><span>CLUES</span><strong>{entry.clues.length}</strong></div>
+          <div><span>TRIES</span><strong>{maxWrong}</strong></div>
+        </div>
+        <button className="primary-btn" onClick={startCustom}>Player 2 ready <span>→</span></button>
+        <button className="text-btn" onClick={()=>setPhase('SETUP')}>← Back to builder</button>
+      </div>
+    )
+  }
+
   return (
     <div className="game-panel guesswork-panel">
+      <div className="guesswork-mode-switch">
+        <button className={playMode==='BUILTIN'?'active':''} onClick={()=>switchMode('BUILTIN')}>BUILT-IN</button>
+        <button className={playMode==='CUSTOM'?'active':''} onClick={()=>switchMode('CUSTOM')}>2 PLAYER</button>
+      </div>
+
       <div className="game-toolbar">
         <div className="mine-stats">
           <div><span className="micro">CLUES</span><strong>{clueCount}/{entry.clues.length}</strong></div>
-          <div><span className="micro">WRONG</span><strong>{wrong.length}/4</strong></div>
+          <div><span className="micro">WRONG</span><strong>{wrong.length}/{maxWrong}</strong></div>
           <div><span className="micro">CATEGORY</span><strong>{entry.category}</strong></div>
         </div>
-        <button className="secondary-btn" onClick={()=>reset()}>New mystery</button>
+        <button className="secondary-btn" onClick={()=>reset()}>{playMode==='CUSTOM'?'New custom':'New mystery'}</button>
       </div>
 
-      <div className="filter-chips guess-categories">
-        {CATEGORIES.map((item)=><button className={`filter-chip ${category===item?'active':''}`} onClick={()=>{setCategory(item);reset(item)}} key={item}>{item}</button>)}
+      <div className="guesswork-rules-row">
+        {playMode==='BUILTIN'&&(
+          <div className="filter-chips guess-categories">
+            {CATEGORIES.map((item)=><button className={`filter-chip ${category===item?'active':''}`} onClick={()=>{setCategory(item);reset(item)}} key={item}>{item}</button>)}
+          </div>
+        )}
+        <div className="filter-chips">
+          {ATTEMPT_OPTIONS.map((value)=><button className={`filter-chip ${maxWrong===value?'active':''}`} onClick={()=>{setMaxWrong(value);clearRound()}} key={value}>{value} TRIES</button>)}
+        </div>
       </div>
 
       <div className="clue-stack">
         {entry.clues.slice(0,clueCount).map((clue,index)=>(
-          <div className="clue-card" key={clue}>
+          <div className="clue-card" key={`${clue}-${index}`}>
             <span>{String(index+1).padStart(2,'0')}</span>
             <p>{clue}</p>
           </div>
@@ -116,7 +277,7 @@ export default function Guesswork({ onComplete }) {
       </div>
 
       <form className="guess-entry" onSubmit={submit}>
-        <input value={guess} onChange={(e)=>setGuess(e.target.value)} placeholder="Type your answer…" disabled={status!=='playing'} autoCapitalize="off" />
+        <input value={guess} onChange={(e)=>setGuess(e.target.value)} placeholder="Type your answer…" disabled={status!=='playing'} autoCapitalize="off"/>
         <button className="primary-btn" disabled={status!=='playing'||!guess.trim()}>Guess ↗</button>
       </form>
 
