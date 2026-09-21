@@ -85,7 +85,7 @@ export default function Hangman({ onComplete }) {
     .filter((letter) => /[A-Z]/.test(letter) && guessed.includes(letter))
     .length
   const uniqueLetters = new Set(
-    entry.word.split('').filter((letter) => /[A-Z]/.test(letter),
+    entry.word.split('').filter((letter) => /[A-Z]/.test(letter)),
   ).size
   const progress = uniqueLetters
     ? Math.round((revealedCount / uniqueLetters) * 100)
