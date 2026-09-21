@@ -40,7 +40,7 @@ const GAMES = [
     icon: '⌁',
     description: 'Reveal the word before the drawing is complete.',
     accent: 'violet',
-    bestLabel: (best) => (best == null ? 'No best yet' : `Best: ${best} misses`),
+    bestLabel: (best) => (best == null ? 'No best yet' : `Best: ${best} strikes`),
   },
   {
     id: 'minesweeper',
