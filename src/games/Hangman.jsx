@@ -295,7 +295,6 @@ export default function Hangman({ onComplete }) {
       <div className="game-panel hangman-panel">
         <div className="hang-mode-switch">
           <button
-            className="active"
             onClick={() => changeMode('SOLO')}
           >
             SOLO
