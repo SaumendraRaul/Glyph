@@ -4,25 +4,25 @@
 
 ## V3 games
 
-- **Word Grid** — Wordle-style 5-letter guessing with a real English guess dictionary.
+- **Word Grid** — Practice and deterministic Daily grids, optional Hard Mode that enforces revealed clues, physical keyboard support, and a full English guess dictionary.
 - **Hangman** — 120-word solo bank across Easy/Medium/Hard, local 2-player secret-word mode, 4/6/8/10-life presets, three-tier clue systems, paid hints that cost lives, physical keyboard input, and responsive touch controls.
-- **Minesweeper** — 9×9 beginner board, 10 mines, first-click safety, recursive clearing, right-click flags, and mobile flag mode.
-- **Memory Match** — 4×4 pair matching with move and time tracking.
-- **2048** — keyboard, swipe, and touch controls with score tracking and a 2048 win condition.
-- **Snake** — keyboard, swipe, and touch controls; eat 12 targets to clear a run.
-- **Connections** — four hidden word groups, four allowed mistakes, shuffle, and near-miss feedback.
-- **Reaction Test** — five reaction rounds with false-start handling and average reaction time.
+- **Minesweeper** — Easy 9×9, Medium 12×12 and Expert 16×16 fields with safe starts, recursive clearing, chord reveal, right-click flags, and mobile flag mode.
+- **Memory Match** — 4×4, 5×4 and 6×6 pair boards with move/time tracking and an optional 2.5-second study preview.
+- **2048** — 1024/2048/4096 targets, keyboard/swipe/touch controls, three limited undos, scoring, and endless continuation after reaching the target.
+- **Snake** — Chill/Classic/Turbo speeds, 8/12/20-food goals, solid or wraparound walls, optional obstacles, and keyboard/swipe/touch controls.
+- **Connections** — built-in themed puzzles plus a local 2-player builder where Player 1 creates four secret categories and Player 2 solves the shuffled grid.
+- **Reaction Test** — 3/5/10-round runs, Classic or Strict false-start rules, average/best/worst/spread stats, and per-round history.
 - **Pokémon Connections** — themed 16-word grouping puzzles built from Pokémon, evolutions, regions, legendary groups, and other franchise knowledge.
 - **Statle** — six Pokémon, hidden-stat picks with full reveal after selection, Gen 1–9 + Mega filters, all 93 distinct Mega Evolutions including Legends: Z-A / Mega Dimension additions, PokéAPI sprites/artwork, and a 600+ BST target.
 - **Connect ४** — Connect Four with Easy/Medium/Hard AI, alpha-beta minimax, immediate tactical blocking, and local 2-player.
 - **PokéGuess** — National Dex guessing with Gen filters, autocomplete, higher/lower comparisons, types, size feedback, and progressive clues.
-- **Guesswork** — clue-ladder guessing across tech, space, nature, world, objects, and games.
-- **Type Rush** — timed typing with difficulty, 30/60/90-second modes, WPM, accuracy, combo, and score.
+- **Guesswork** — built-in clue ladders plus a local 2-player mystery builder, configurable attempt counts, progressive clues, and score penalties for extra help.
+- **Type Rush** — Standard or Sudden Death rules, built-in or custom word banks, 30/60/90-second runs, difficulty, WPM, accuracy, combo, and score.
 - **Checkmate** — curated chess tactics with difficulty filters, interactive board selection, hints, timer, and adjusted scoring.
 - **Crosswire** — compact crossword-style word squares with Across/Down clues, keyboard navigation, hints, checking, and timer.
 - **Sudoku** — verified unique-solution 9×9 puzzles with Easy/Medium/Hard, notes, hints, mistakes, and timing.
 - **Silhouette** — Pokémon silhouette guessing with Gen filters and progressively unlocked clues.
-- **Deadcenter** — aim trainer with three target-size/speed modes, accuracy, reaction time, misses, and score.
+- **Deadcenter** — 15/30/60-second aim runs across Chill/Standard/Insane target profiles with accuracy, reaction time, misses, and scoring.
 
 ## Shared arcade features
 
