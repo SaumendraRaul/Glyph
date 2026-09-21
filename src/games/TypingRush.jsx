@@ -8,14 +8,29 @@ const WORDS = {
 
 const DURATIONS = [30,60,90]
 
-function shuffledWords(level,count=240){
-  const pool=WORDS[level]
-  return Array.from({length:count},()=>pool[Math.floor(Math.random()*pool.length)])
+function shuffledWords(level,count=240,pool=null){
+  const source=pool?.length?pool:WORDS[level]
+  return Array.from({length:count},()=>source[Math.floor(Math.random()*source.length)])
+}
+
+function customPoolFromText(value){
+  return value
+    .toLowerCase()
+    .split(/[^a-z]+/)
+    .map((word)=>word.trim())
+    .filter((word)=>word.length>=2)
+    .slice(0,120)
 }
 
 export default function TypingRush({ onComplete }) {
   const [level,setLevel]=useState('MEDIUM')
   const [duration,setDuration]=useState(60)
+  const [runMode,setRunMode]=useState('STANDARD')
+  const [sourceMode,setSourceMode]=useState('BUILTIN')
+  const [customText,setCustomText]=useState('')
+  const [customError,setCustomError]=useState('')
+  const [activePool,setActivePool]=useState(null)
+
   const [words,setWords]=useState(()=>shuffledWords('MEDIUM'))
   const [index,setIndex]=useState(0)
   const [input,setInput]=useState('')
@@ -26,6 +41,8 @@ export default function TypingRush({ onComplete }) {
   const [chars,setChars]=useState(0)
   const [combo,setCombo]=useState(0)
   const [bestCombo,setBestCombo]=useState(0)
+  const [endedByMiss,setEndedByMiss]=useState(false)
+
   const completed=useRef(false)
   const inputRef=useRef(null)
 
@@ -34,13 +51,37 @@ export default function TypingRush({ onComplete }) {
   const accuracy=correct+wrong?Math.round(correct/(correct+wrong)*100):100
   const score=Math.max(0,Math.round(wpm*10*accuracy/100 + bestCombo*5))
 
-  function reset(nextLevel=level,nextDuration=duration){
-    setLevel(nextLevel);setDuration(nextDuration);setWords(shuffledWords(nextLevel));setIndex(0);setInput('')
-    setRunning(false);setTime(nextDuration);setCorrect(0);setWrong(0);setChars(0);setCombo(0);setBestCombo(0);completed.current=false
+  function reset(nextLevel=level,nextDuration=duration,pool=activePool){
+    setLevel(nextLevel)
+    setDuration(nextDuration)
+    setWords(shuffledWords(nextLevel,240,pool))
+    setIndex(0)
+    setInput('')
+    setRunning(false)
+    setTime(nextDuration)
+    setCorrect(0)
+    setWrong(0)
+    setChars(0)
+    setCombo(0)
+    setBestCombo(0)
+    setEndedByMiss(false)
+    completed.current=false
   }
 
   function start(){
-    reset(level,duration)
+    let pool=null
+
+    if(sourceMode==='CUSTOM'){
+      pool=customPoolFromText(customText)
+      if(pool.length<5){
+        setCustomError('Add at least five usable words to the custom bank.')
+        return
+      }
+    }
+
+    setCustomError('')
+    setActivePool(pool)
+    reset(level,duration,pool)
     setRunning(true)
     window.setTimeout(()=>inputRef.current?.focus(),50)
   }
@@ -53,26 +94,64 @@ export default function TypingRush({ onComplete }) {
 
   useEffect(()=>{
     if(time!==0||completed.current)return
-    setRunning(false);completed.current=true
+    setRunning(false)
+    completed.current=true
     const target=level==='HARD'?35:level==='MEDIUM'?30:25
-    onComplete({won:wpm>=target,score,lowerIsBetter:false,bonusXp:wpm>=60?40:wpm>=45?28:wpm>=30?16:6})
-  },[time,wpm,score,level,onComplete])
+
+    onComplete({
+      won:runMode==='SUDDEN'?(!endedByMiss&&correct>0):wpm>=target,
+      score,
+      lowerIsBetter:false,
+      bonusXp:Math.min(
+        40,
+        (wpm>=60?34:wpm>=45?24:wpm>=30?14:5)+
+          (runMode==='SUDDEN'&&!endedByMiss?5:0)+
+          (sourceMode==='CUSTOM'?2:0),
+      ),
+    })
+  },[
+    time,
+    wpm,
+    score,
+    level,
+    runMode,
+    endedByMiss,
+    correct,
+    sourceMode,
+    onComplete,
+  ])
 
   function submitWord(){
     if(!running||!input.trim())return
+
     const target=words[index]
+
     if(input.trim()===target){
       const nextCombo=combo+1
-      setCorrect((v)=>v+1);setChars((v)=>v+target.length+1);setCombo(nextCombo);setBestCombo((v)=>Math.max(v,nextCombo))
+      setCorrect((v)=>v+1)
+      setChars((v)=>v+target.length+1)
+      setCombo(nextCombo)
+      setBestCombo((v)=>Math.max(v,nextCombo))
     }else{
-      setWrong((v)=>v+1);setCombo(0)
+      setWrong((v)=>v+1)
+      setCombo(0)
+
+      if(runMode==='SUDDEN'){
+        setEndedByMiss(true)
+        setInput('')
+        setTime(0)
+        return
+      }
     }
-    setIndex((v)=>v+1);setInput('')
+
+    setIndex((v)=>v+1)
+    setInput('')
   }
 
   function keyDown(event){
     if(event.key===' '||event.key==='Enter'){
-      event.preventDefault();submitWord()
+      event.preventDefault()
+      submitWord()
     }
   }
 
@@ -80,6 +159,39 @@ export default function TypingRush({ onComplete }) {
 
   return (
     <div className="game-panel typing-panel">
+      <div className="typing-mode-grid">
+        <div>
+          <span className="micro">RULESET</span>
+          <div className="filter-chips">
+            {['STANDARD','SUDDEN'].map((item)=><button className={`filter-chip ${runMode===item?'active':''}`} disabled={running} onClick={()=>{setRunMode(item);reset()}} key={item}>{item}</button>)}
+          </div>
+        </div>
+
+        <div>
+          <span className="micro">WORD SOURCE</span>
+          <div className="filter-chips">
+            {['BUILTIN','CUSTOM'].map((item)=><button className={`filter-chip ${sourceMode===item?'active':''}`} disabled={running} onClick={()=>{setSourceMode(item);setCustomError('');reset(level,duration,item==='CUSTOM'?customPoolFromText(customText):null)}} key={item}>{item}</button>)}
+          </div>
+        </div>
+      </div>
+
+      {sourceMode==='CUSTOM'&&(
+        <div className="typing-custom-bank">
+          <span className="micro">CUSTOM WORD BANK</span>
+          <textarea
+            value={customText}
+            onChange={(event)=>setCustomText(event.target.value.slice(0,1800))}
+            disabled={running}
+            placeholder="Paste or type words separated by spaces, commas or lines…"
+          />
+          <div>
+            <span>{customPoolFromText(customText).length} usable words</span>
+            <small>At least 5 required · duplicates are allowed</small>
+          </div>
+          {customError&&<strong>{customError}</strong>}
+        </div>
+      )}
+
       <div className="game-toolbar">
         <div className="mine-stats">
           <div><span className="micro">WPM</span><strong>{running||time===0?wpm:'—'}</strong></div>
@@ -91,14 +203,19 @@ export default function TypingRush({ onComplete }) {
       </div>
 
       <div className="typing-settings">
-        <div className="filter-chips">{['EASY','MEDIUM','HARD'].map((item)=><button className={`filter-chip ${level===item?'active':''}`} disabled={running} onClick={()=>reset(item,duration)} key={item}>{item}</button>)}</div>
-        <div className="filter-chips">{DURATIONS.map((item)=><button className={`filter-chip ${duration===item?'active':''}`} disabled={running} onClick={()=>reset(level,item)} key={item}>{item}s</button>)}</div>
+        <div className="filter-chips">
+          {['EASY','MEDIUM','HARD'].map((item)=><button className={`filter-chip ${level===item?'active':''}`} disabled={running||sourceMode==='CUSTOM'} onClick={()=>reset(item,duration)} key={item}>{item}</button>)}
+        </div>
+        <div className="filter-chips">
+          {DURATIONS.map((item)=><button className={`filter-chip ${duration===item?'active':''}`} disabled={running} onClick={()=>reset(level,item)} key={item}>{item}s</button>)}
+        </div>
       </div>
 
       <div className={`typing-stage ${running?'running':''}`}>
         <div className="word-ribbon">
           {upcoming.map((word,i)=><span className={i===0?'current':''} key={`${word}-${index+i}`}>{word}</span>)}
         </div>
+
         <input
           ref={inputRef}
           className="typing-input"
@@ -111,7 +228,10 @@ export default function TypingRush({ onComplete }) {
           autoCorrect="off"
           spellCheck="false"
         />
-        <div className="typing-progress"><i style={{width:`${((duration-time)/duration)*100}%`}} /></div>
+
+        <div className="typing-progress">
+          <i style={{width:`${((duration-time)/duration)*100}%`}} />
+        </div>
       </div>
 
       <div className="typing-summary">
@@ -121,8 +241,16 @@ export default function TypingRush({ onComplete }) {
         <div><span>SCORE</span><strong>{score}</strong></div>
       </div>
 
-      <div className={`game-message ${time===0?(wpm>=(level==='HARD'?35:level==='MEDIUM'?30:25)?'won':'lost'):''}`}>
-        {time===0?`${wpm} WPM at ${accuracy}% accuracy.`:running?'Space or Enter commits each word. Typos break the combo.':'Choose a mode and start when your fingers have stopped making excuses.'}
+      <div className={`game-message ${time===0?(runMode==='SUDDEN'?(endedByMiss?'lost':'won'):(wpm>=(level==='HARD'?35:level==='MEDIUM'?30:25)?'won':'lost')):''}`}>
+        {time===0
+          ? endedByMiss
+            ? `Sudden Death ended on the first miss · ${wpm} WPM.`
+            : `${wpm} WPM at ${accuracy}% accuracy.`
+          : running
+            ? runMode==='SUDDEN'
+              ? 'One wrong word ends the run. Humans apparently requested this.'
+              : 'Space or Enter commits each word. Typos break the combo.'
+            : 'Choose a ruleset, source and duration, then start.'}
       </div>
     </div>
   )
