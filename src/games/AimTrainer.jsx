@@ -1,15 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
 
 const MODES = {
-  CHILL: { seconds: 30, size: 62, life: 1400 },
-  STANDARD: { seconds: 30, size: 48, life: 1050 },
-  INSANE: { seconds: 30, size: 34, life: 780 },
+  CHILL: { size: 62, life: 1400 },
+  STANDARD: { size: 48, life: 1050 },
+  INSANE: { size: 34, life: 780 },
 }
+
+const DURATIONS = [15, 30, 60]
 
 export default function AimTrainer({ onComplete }) {
   const [mode, setMode] = useState('STANDARD')
+  const [duration, setDuration] = useState(30)
   const [running, setRunning] = useState(false)
-  const [time, setTime] = useState(MODES.STANDARD.seconds)
+  const [time, setTime] = useState(30)
   const [hits, setHits] = useState(0)
   const [misses, setMisses] = useState(0)
   const [target, setTarget] = useState({ x: 50, y: 50, born: 0 })
@@ -37,11 +40,12 @@ export default function AimTrainer({ onComplete }) {
     }, MODES[mode].life)
   }
 
-  function reset(nextMode = mode) {
+  function reset(nextMode = mode, nextDuration = duration) {
     window.clearTimeout(targetTimer.current)
     setMode(nextMode)
+    setDuration(nextDuration)
     setRunning(false)
-    setTime(MODES[nextMode].seconds)
+    setTime(nextDuration)
     setHits(0)
     setMisses(0)
     setReactions([])
@@ -50,7 +54,7 @@ export default function AimTrainer({ onComplete }) {
   }
 
   function start() {
-    reset(mode)
+    reset(mode, duration)
     setRunning(true)
     window.setTimeout(spawn, 60)
   }
@@ -77,8 +81,19 @@ export default function AimTrainer({ onComplete }) {
     const avg = reactions.length ? Math.round(reactions.reduce((a,b) => a+b, 0) / reactions.length) : 9999
     const accuracy = hits + misses ? hits / (hits + misses) : 0
     const score = Math.max(0, Math.round(hits * 100 * accuracy - avg / 10))
-    onComplete({ won: hits >= 12, score, lowerIsBetter: false, bonusXp: hits >= 25 ? 35 : hits >= 18 ? 22 : 8 })
-  }, [time, hits, misses, reactions, onComplete])
+    const targetHits = duration === 15 ? 7 : duration === 60 ? 24 : 12
+    onComplete({
+      won: hits >= targetHits,
+      score,
+      lowerIsBetter: false,
+      bonusXp: Math.min(
+        40,
+        (hits >= 25 ? 30 : hits >= 18 ? 20 : 8) +
+          (duration === 60 ? 5 : 0) +
+          (mode === 'INSANE' ? 5 : 0),
+      ),
+    })
+  }, [time, hits, misses, reactions, duration, mode, onComplete])
 
   function hit(event) {
     event.stopPropagation()
@@ -109,10 +124,24 @@ export default function AimTrainer({ onComplete }) {
         <button className="secondary-btn" onClick={start}>{running ? 'Restart' : 'Start'}</button>
       </div>
 
-      <div className="filter-chips aim-modes">
-        {Object.keys(MODES).map((item) => (
-          <button className={`filter-chip ${mode === item ? 'active' : ''}`} onClick={() => reset(item)} disabled={running} key={item}>{item}</button>
-        ))}
+      <div className="aim-settings">
+        <div>
+          <span className="micro">TARGET PROFILE</span>
+          <div className="filter-chips aim-modes">
+            {Object.keys(MODES).map((item) => (
+              <button className={`filter-chip ${mode === item ? 'active' : ''}`} onClick={() => reset(item, duration)} disabled={running} key={item}>{item}</button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <span className="micro">RUN LENGTH</span>
+          <div className="filter-chips">
+            {DURATIONS.map((value) => (
+              <button className={`filter-chip ${duration === value ? 'active' : ''}`} onClick={() => reset(mode, value)} disabled={running} key={value}>{value}s</button>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div className={`aim-zone ${running ? 'live' : ''}`} ref={zoneRef} onPointerDown={miss}>
