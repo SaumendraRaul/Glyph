@@ -62,7 +62,7 @@ const PUZZLES = [
     difficulty: 'HARD',
     groups: [
       { title: 'CAN FOLLOW “BLACK”', words: ['JACK', 'OUT', 'BIRD', 'BOARD'] },
-      { title: 'CAN FOLLOW “BLUE”', words: ['BERRY', 'TOOTH', 'PRINT', 'BIRD'] },
+      { title: 'CAN FOLLOW “BLUE”', words: ['BERRY', 'TOOTH', 'PRINT', 'MOON'] },
       { title: 'THINGS YOU CAN BREAK', words: ['PROMISE', 'RECORD', 'GLASS', 'SILENCE'] },
       { title: 'THINGS WITH A RING', words: ['PHONE', 'TREE', 'BOXING', 'SATURN'] },
     ],
@@ -143,6 +143,10 @@ function prepareCustomGroups(fields) {
 
   if (groups.some((group) => !group.title)) {
     return { error: 'Every group needs a category title.' }
+  }
+
+  if (new Set(groups.map((group) => group.title)).size !== 4) {
+    return { error: 'Use four different category titles.' }
   }
 
   if (groups.some((group) => group.words.length !== 4)) {
