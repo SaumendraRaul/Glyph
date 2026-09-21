@@ -5702,3 +5702,691 @@ footer {
     flex-wrap: wrap;
   }
 }
+
+
+/* =========================================================
+   Glyph depth pass — shared game modes and local challenges
+   ========================================================= */
+
+/* Word Grid */
+.word-mode-bar,
+.game2048-settings,
+.memory-settings,
+.reaction-settings,
+.typing-mode-grid,
+.aim-settings,
+.snake-settings {
+  margin-bottom: 14px;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.word-hard-toggle,
+.memory-preview-toggle,
+.game2048-undo {
+  min-height: 48px;
+  padding: 8px 11px;
+  border: 1px solid #313946;
+  border-radius: 10px;
+  background: #11161d;
+  color: #778190;
+  display: grid;
+  justify-items: start;
+  align-content: center;
+  gap: 2px;
+  text-align: left;
+}
+
+.word-hard-toggle span,
+.memory-preview-toggle span,
+.game2048-undo span {
+  font: 700 .58rem 'DM Mono', monospace;
+  letter-spacing: .07em;
+}
+
+.word-hard-toggle small,
+.memory-preview-toggle small,
+.game2048-undo small {
+  color: #596372;
+  font-size: .54rem;
+}
+
+.word-hard-toggle.active,
+.memory-preview-toggle.active {
+  border-color: color-mix(in srgb, var(--game) 45%, #313946);
+  background: color-mix(in srgb, var(--game) 6%, #11161d);
+  color: var(--game);
+}
+
+/* Minesweeper */
+.mine-difficulty {
+  margin-bottom: 12px;
+  display: grid;
+  gap: 6px;
+}
+
+.mine-difficulty .filter-chips {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+}
+
+.mine-difficulty .filter-chip {
+  min-height: 48px;
+  display: grid;
+  align-content: center;
+  gap: 2px;
+}
+
+.mine-difficulty .filter-chip strong {
+  font-size: .58rem;
+}
+
+.mine-difficulty .filter-chip small {
+  color: #596372;
+  font-size: .48rem;
+}
+
+.mine-scroll-shell {
+  width: 100%;
+  overflow: auto;
+  padding: 2px;
+  scrollbar-width: thin;
+}
+
+.mine-board.mine-medium {
+  width: min(620px, 100%);
+}
+
+.mine-board.mine-expert {
+  width: 690px;
+  max-width: none;
+}
+
+.mine-expert .mine-cell {
+  border-radius: 5px;
+  font-size: .68rem;
+}
+
+/* Memory */
+.memory-settings > div {
+  display: grid;
+  gap: 6px;
+}
+
+.memory-settings .filter-chip {
+  min-height: 46px;
+  display: grid;
+  align-content: center;
+  gap: 1px;
+}
+
+.memory-settings .filter-chip small {
+  color: #5d6675;
+  font-size: .46rem;
+}
+
+.memory-grid.memory-wide {
+  width: min(600px,100%);
+}
+
+.memory-grid.memory-grand {
+  width: min(630px,100%);
+  gap: 6px;
+}
+
+.memory-grand .memory-card {
+  border-radius: 9px;
+  font-size: clamp(.9rem,4vw,1.45rem);
+}
+
+.memory-preview-banner {
+  min-height: 48px;
+  margin: 0 auto 10px;
+  width: min(630px,100%);
+  padding: 8px 11px;
+  border: 1px solid #3c4734;
+  border-radius: 10px;
+  background: rgba(119,187,96,.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.memory-preview-banner span {
+  color: var(--game);
+  font: 700 .52rem 'DM Mono', monospace;
+}
+
+.memory-preview-banner strong {
+  font-size: .68rem;
+}
+
+/* 2048 */
+.game2048-settings > div,
+.reaction-settings > div,
+.typing-mode-grid > div,
+.aim-settings > div,
+.snake-settings > div {
+  display: grid;
+  gap: 6px;
+}
+
+.game2048-undo:disabled {
+  opacity: .42;
+}
+
+.game2048-continue {
+  width: min(500px,100%);
+  margin: 12px auto 0;
+  justify-content: space-between;
+}
+
+/* Snake */
+.snake-settings {
+  align-items: stretch;
+}
+
+.snake-rule-toggles {
+  display: flex !important;
+  gap: 6px;
+}
+
+.snake-rule-toggles button {
+  min-width: 108px;
+  min-height: 48px;
+  padding: 7px 10px;
+  border: 1px solid #303845;
+  border-radius: 9px;
+  background: #11161d;
+  color: #697382;
+  display: grid;
+  gap: 2px;
+  text-align: left;
+}
+
+.snake-rule-toggles span {
+  font: 600 .47rem 'DM Mono', monospace;
+  letter-spacing: .07em;
+}
+
+.snake-rule-toggles strong {
+  font: 700 .62rem 'DM Mono', monospace;
+}
+
+.snake-rule-toggles button.active {
+  color: #a8e991;
+  border-color: #43593c;
+  background: rgba(115,194,88,.055);
+}
+
+.snake-rule-toggles button.active.danger {
+  color: #ffc06f;
+  border-color: #5e4933;
+  background: rgba(219,144,65,.055);
+}
+
+.snake-cell.snake-obstacle {
+  background:
+    linear-gradient(135deg, #333b47 25%, #222832 25% 50%, #333b47 50% 75%, #222832 75%);
+  background-size: 6px 6px;
+  box-shadow: inset 0 0 0 1px #46505e;
+}
+
+/* Reaction */
+.reaction-settings {
+  align-items: stretch;
+}
+
+.reaction-summary {
+  margin: 12px 0 8px;
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 7px;
+}
+
+.reaction-summary > div {
+  min-height: 60px;
+  padding: 9px 10px;
+  border: 1px solid #29313b;
+  border-radius: 9px;
+  background: #10151b;
+  display: grid;
+  align-content: center;
+  gap: 3px;
+}
+
+.reaction-summary span {
+  color: #5a6574;
+  font: 500 .48rem 'DM Mono', monospace;
+}
+
+.reaction-summary strong {
+  font-size: .92rem;
+}
+
+.reaction-history .penalty {
+  border-color: #5a353b;
+  background: #23171a;
+}
+
+.reaction-history .penalty strong {
+  color: #df858d;
+}
+
+/* Connections custom builder */
+.connection-mode-switch,
+.guesswork-mode-switch {
+  margin-bottom: 12px;
+  padding: 4px;
+  border: 1px solid #2d3440;
+  border-radius: 10px;
+  background: #0c1117;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.connection-mode-switch button,
+.guesswork-mode-switch button {
+  min-height: 40px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: #616c7b;
+  font: 700 .56rem 'DM Mono', monospace;
+  letter-spacing: .07em;
+}
+
+.connection-mode-switch button.active,
+.guesswork-mode-switch button.active {
+  border-color: #414b58;
+  background: #171d25;
+  color: #e0e6ed;
+}
+
+.connection-builder,
+.guesswork-builder {
+  padding: 16px;
+  border: 1px solid #303844;
+  border-radius: 15px;
+  background:
+    radial-gradient(circle at 100% 0, color-mix(in srgb,var(--game) 6%,transparent), transparent 36%),
+    #0d1218;
+  display: grid;
+  gap: 14px;
+}
+
+.connection-builder-head,
+.guesswork-builder-head {
+  display: grid;
+  gap: 5px;
+}
+
+.connection-builder-head h3,
+.guesswork-builder-head h3,
+.connection-pass h3,
+.guesswork-pass h3 {
+  margin: 0;
+  font-size: 1.3rem;
+  letter-spacing: -.035em;
+}
+
+.connection-builder-head p,
+.guesswork-builder-head p,
+.connection-pass > p,
+.guesswork-pass > p {
+  margin: 0;
+  color: #727d8c;
+  font-size: .72rem;
+  line-height: 1.55;
+}
+
+.connection-builder-groups {
+  display: grid;
+  gap: 8px;
+}
+
+.connection-builder-group {
+  display: grid;
+  grid-template-columns: 32px minmax(120px,.7fr) minmax(0,1.3fr);
+  gap: 7px;
+  align-items: center;
+}
+
+.connection-builder-group > span {
+  color: var(--game);
+  font: 700 .54rem 'DM Mono', monospace;
+}
+
+.connection-builder-group input,
+.guesswork-builder input,
+.typing-custom-bank textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  border: 1px solid #343d49;
+  border-radius: 9px;
+  background: #10151b;
+  color: #edf2f7;
+  padding: 0 11px;
+  outline: none;
+  font: 600 .7rem 'DM Mono', monospace;
+}
+
+.connection-builder-group input:focus,
+.guesswork-builder input:focus,
+.typing-custom-bank textarea:focus {
+  border-color: color-mix(in srgb,var(--game) 45%,#343d49);
+}
+
+.connection-builder-error,
+.guesswork-builder-error {
+  padding: 9px 11px;
+  border: 1px solid #5a353c;
+  border-radius: 8px;
+  background: #221619;
+  color: #da8990;
+  font-size: .66rem;
+}
+
+.connection-lock {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.connection-pass,
+.guesswork-pass {
+  min-height: 480px;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.connection-pass-mark,
+.guesswork-pass-mark {
+  width: 78px;
+  height: 78px;
+  border: 1px solid #3b4450;
+  border-radius: 20px;
+  background: #12171e;
+  color: var(--game);
+  display: grid;
+  place-items: center;
+  font: 800 1.2rem 'DM Mono', monospace;
+}
+
+.connection-pass-grid {
+  width: min(300px,100%);
+  margin: 8px 0;
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 5px;
+}
+
+.connection-pass-grid span {
+  aspect-ratio: 1;
+  border: 1px solid #2c3440;
+  border-radius: 7px;
+  background: #11161d;
+  color: #4f5967;
+  display: grid;
+  place-items: center;
+}
+
+/* Guesswork custom builder */
+.guesswork-builder > label,
+.guesswork-builder-clues label {
+  display: grid;
+  gap: 5px;
+}
+
+.guesswork-builder label > span {
+  color: #657080;
+  font: 600 .5rem 'DM Mono', monospace;
+}
+
+.guesswork-builder label > span i {
+  color: #4e5866;
+  font-style: normal;
+}
+
+.guesswork-builder-clues {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.guesswork-builder-attempts {
+  display: grid;
+  gap: 6px;
+}
+
+.guesswork-pass-meta {
+  width: min(420px,100%);
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.guesswork-pass-meta > div {
+  min-height: 62px;
+  border: 1px solid #2b333d;
+  border-radius: 9px;
+  background: #10151b;
+  display: grid;
+  align-content: center;
+  gap: 3px;
+}
+
+.guesswork-pass-meta span {
+  color: #596474;
+  font: 500 .46rem 'DM Mono', monospace;
+}
+
+.guesswork-rules-row {
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Typing Rush */
+.typing-mode-grid {
+  align-items: stretch;
+}
+
+.typing-custom-bank {
+  margin-bottom: 14px;
+  padding: 11px;
+  border: 1px solid #2e3742;
+  border-radius: 11px;
+  background: #0e1319;
+  display: grid;
+  gap: 7px;
+}
+
+.typing-custom-bank textarea {
+  min-height: 86px;
+  padding: 10px 11px;
+  resize: vertical;
+  line-height: 1.45;
+}
+
+.typing-custom-bank > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: #5c6675;
+  font-size: .58rem;
+}
+
+.typing-custom-bank > strong {
+  color: #dc858c;
+  font-size: .64rem;
+}
+
+/* Deadcenter */
+.aim-settings {
+  align-items: stretch;
+}
+
+.aim-settings .aim-modes {
+  margin-bottom: 0;
+}
+
+/* responsive */
+@media (max-width: 680px) {
+  .word-mode-bar,
+  .game2048-settings,
+  .memory-settings,
+  .reaction-settings,
+  .typing-mode-grid,
+  .aim-settings,
+  .snake-settings {
+    align-items: stretch;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .word-hard-toggle,
+  .memory-preview-toggle,
+  .game2048-undo {
+    width: 100%;
+  }
+
+  .mine-difficulty .filter-chip small {
+    display: none;
+  }
+
+  .mine-scroll-shell {
+    margin-inline: -2px;
+    padding-bottom: 6px;
+  }
+
+  .mine-board.mine-expert {
+    width: 610px;
+  }
+
+  .memory-grid.memory-grand {
+    gap: 4px;
+  }
+
+  .memory-grand .memory-card {
+    border-radius: 7px;
+  }
+
+  .memory-preview-banner {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .snake-rule-toggles {
+    width: 100%;
+  }
+
+  .snake-rule-toggles button {
+    flex: 1;
+  }
+
+  .reaction-summary {
+    grid-template-columns: repeat(3,1fr);
+  }
+
+  .connection-builder-group {
+    grid-template-columns: 28px 1fr;
+  }
+
+  .connection-builder-group input:last-child {
+    grid-column: 2;
+  }
+
+  .connection-pass,
+  .guesswork-pass {
+    min-height: 410px;
+  }
+
+  .guesswork-builder-clues {
+    grid-template-columns: 1fr;
+  }
+
+  .guesswork-rules-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .guesswork-rules-row .filter-chips {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  .typing-custom-bank > div {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
+  }
+}
+
+@media (max-width: 430px) {
+  .mine-difficulty .filter-chips {
+    gap: 4px;
+  }
+
+  .mine-difficulty .filter-chip {
+    min-height: 40px;
+    padding: 0 4px;
+    font-size: .5rem;
+  }
+
+  .mine-board.mine-expert {
+    width: 560px;
+    gap: 3px;
+  }
+
+  .memory-grid.memory-grand {
+    width: 100%;
+  }
+
+  .memory-grand .memory-card {
+    font-size: .9rem;
+  }
+
+  .snake-rule-toggles {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .snake-rule-toggles button {
+    min-width: 0;
+  }
+
+  .reaction-summary > div {
+    min-height: 54px;
+    padding: 7px;
+  }
+
+  .connection-builder,
+  .guesswork-builder {
+    padding: 12px;
+  }
+
+  .connection-builder-group {
+    grid-template-columns: 22px 1fr;
+  }
+
+  .connection-pass-grid {
+    width: 240px;
+  }
+
+  .guesswork-pass-meta {
+    grid-template-columns: 1fr;
+  }
+}
