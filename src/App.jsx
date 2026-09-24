@@ -875,10 +875,13 @@ export default function App() {
   const [resultOverlay, setResultOverlay] = useState(null)
   const [startOverlay, setStartOverlay] = useState(null)
   const [impact, setImpact] = useState('')
+  const [achievementToast, setAchievementToast] = useState(null)
   const [fxEnabled, setFxEnabled] = useState(loadFxPreference)
   const resultTimer = useRef(null)
   const startTimer = useRef(null)
   const impactTimer = useRef(null)
+  const achievementTimer = useRef(null)
+  const previousAchievements = useRef(null)
   const audioRef = useRef(null)
   const { profile, recordResult, resetProfile, totals } = useProfile()
 
@@ -899,6 +902,45 @@ export default function App() {
   }, [fxEnabled])
 
   useEffect(() => {
+    const current = Array.isArray(profile.achievements)
+      ? profile.achievements
+      : []
+
+    if (previousAchievements.current == null) {
+      previousAchievements.current = current
+      return
+    }
+
+    const before = new Set(previousAchievements.current)
+    const fresh = current.filter((id) => !before.has(id))
+    previousAchievements.current = current
+
+    if (!fresh.length) return
+
+    const id = fresh[fresh.length - 1]
+    const item = ACHIEVEMENTS[id]
+    if (!item) return
+
+    window.clearTimeout(achievementTimer.current)
+    setAchievementToast({
+      id: Date.now(),
+      name: item.name,
+      description: item.description,
+      extra: fresh.length > 1 ? fresh.length - 1 : 0,
+    })
+
+    playArcadeSound(audioRef, fxEnabled, 'best')
+
+    if (fxEnabled && typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate([25, 35, 50])
+    }
+
+    achievementTimer.current = window.setTimeout(() => {
+      setAchievementToast(null)
+    }, 3200)
+  }, [profile.achievements, fxEnabled])
+
+  useEffect(() => {
     function onPointerDown(event) {
       const button = event.target instanceof Element
         ? event.target.closest('button')
@@ -916,6 +958,7 @@ export default function App() {
     window.clearTimeout(resultTimer.current)
     window.clearTimeout(startTimer.current)
     window.clearTimeout(impactTimer.current)
+    window.clearTimeout(achievementTimer.current)
     audioRef.current?.close?.().catch?.(() => {})
   }, [])
 
@@ -1125,7 +1168,7 @@ export default function App() {
       </main>
 
       {startOverlay && (
-        <div className="start-overlay" key={startOverlay.id} aria-hidden="true">
+        <div className={`start-overlay accent-${gameMeta?.accent || 'lime'}`} key={startOverlay.id} aria-hidden="true">
           <div className="start-overlay-line" />
           <div className="start-overlay-card">
             <span className="start-overlay-icon">{startOverlay.icon}</span>
@@ -1134,6 +1177,25 @@ export default function App() {
             <small>READY</small>
           </div>
           <div className="start-overlay-line" />
+        </div>
+      )}
+
+      {achievementToast && (
+        <div
+          className="achievement-toast"
+          role="status"
+          aria-live="polite"
+          key={achievementToast.id}
+        >
+          <span className="achievement-toast-gem" aria-hidden="true">◆</span>
+          <div>
+            <span>ACHIEVEMENT UNLOCKED</span>
+            <strong>{achievementToast.name}</strong>
+            <small>{achievementToast.description}</small>
+          </div>
+          {achievementToast.extra > 0 && (
+            <b>+{achievementToast.extra}</b>
+          )}
         </div>
       )}
 
