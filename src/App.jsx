@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { Capacitor } from '@capacitor/core'
 import { App as CapacitorApp } from '@capacitor/app'
@@ -787,6 +787,8 @@ function Dashboard({ profile, totals, onPlay, onReset }) {
 
 export default function App() {
   const [activeGame, setActiveGame] = useState(null)
+  const [resultOverlay, setResultOverlay] = useState(null)
+  const resultTimer = useRef(null)
   const { profile, recordResult, resetProfile, totals } = useProfile()
 
   const gameMeta = useMemo(
@@ -795,6 +797,8 @@ export default function App() {
   )
 
   const ActiveGame = activeGame ? GAME_COMPONENTS[activeGame] : null
+
+  useEffect(() => () => window.clearTimeout(resultTimer.current), [])
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return undefined
@@ -820,6 +824,9 @@ export default function App() {
   }, [activeGame])
 
   function navigate(nextGame) {
+    window.clearTimeout(resultTimer.current)
+    setResultOverlay(null)
+
     const apply = () => {
       flushSync(() => setActiveGame(nextGame))
       window.scrollTo(0, 0)
@@ -832,8 +839,36 @@ export default function App() {
     }
   }
 
+  function handleGameComplete(result) {
+    if (!activeGame) return
+
+    recordResult(activeGame, result)
+
+    const meta = SCOREBOARD_META[activeGame]
+    const scoreText =
+      typeof result.score === 'number' &&
+      Number.isFinite(result.score) &&
+      meta
+        ? meta.format(result.score)
+        : result.won
+          ? 'COMPLETE'
+          : 'TRY AGAIN'
+
+    window.clearTimeout(resultTimer.current)
+    setResultOverlay({
+      id: Date.now(),
+      won: Boolean(result.won),
+      game: gameMeta?.title || 'Glyph',
+      score: scoreText,
+    })
+
+    resultTimer.current = window.setTimeout(() => {
+      setResultOverlay(null)
+    }, 1750)
+  }
+
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${ActiveGame ? `game-active game-active-${activeGame}` : ''}`}>
       <header className="topbar">
         <button className="brand" onClick={() => navigate(null)} aria-label="Go to Glyph home">
           <span className="brand-mark">G</span>
@@ -872,7 +907,7 @@ export default function App() {
               <div className="game-stage">
                 <ActiveGame
                   key={activeGame}
-                  onComplete={(result) => recordResult(activeGame, result)}
+                  onComplete={handleGameComplete}
                 />
               </div>
               <LocalScoreboard gameId={activeGame} stats={profile.games[activeGame]} />
@@ -880,6 +915,26 @@ export default function App() {
           </section>
         )}
       </main>
+
+      {resultOverlay && (
+        <div
+          className={`result-overlay ${resultOverlay.won ? 'win' : 'loss'}`}
+          role="status"
+          aria-live="assertive"
+          key={resultOverlay.id}
+        >
+          <div className="result-overlay-card">
+            <span className="result-overlay-mark" aria-hidden="true">
+              {resultOverlay.won ? '✓' : '×'}
+            </span>
+            <span className="result-overlay-kicker">
+              {resultOverlay.won ? 'CLEARED' : 'RUN OVER'}
+            </span>
+            <strong>{resultOverlay.game}</strong>
+            <small>{resultOverlay.score}</small>
+          </div>
+        </div>
+      )}
 
       <footer>
         <span>GLYPH V3</span>
