@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { HANGMAN_WORDS } from '../data/words'
 
-const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
+const KEY_ROWS = ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM']
 const DIFFICULTIES = ['ALL', 'EASY', 'MEDIUM', 'HARD']
 const LIFE_OPTIONS = [4, 6, 8, 10]
 
@@ -543,11 +543,20 @@ export default function Hangman({ onComplete }) {
       </div>
 
       <div className="hangman-stage-strip">
-        <div>
-          <span className="micro">RESCUE PROGRESS</span>
+        <div className="hang-progress-label">
+          <span className="micro">RESCUE</span>
           <strong>{progress}%</strong>
         </div>
-
+        <div className="hang-category-pill">
+          <span>CATEGORY</span>
+          <strong>{entry.category}</strong>
+        </div>
+        <button
+          className="hang-mini-reset"
+          type="button"
+          onClick={resetCurrentMode}
+          aria-label={mode === 'SOLO' ? 'Start a new word' : 'Create a new secret'}
+        >↻</button>
         <div
           className="hang-stage-dots"
           aria-label={`${strikes} strikes out of ${maxLives}`}
@@ -580,17 +589,25 @@ export default function Hangman({ onComplete }) {
           className={`hangman-art ${danger ? 'danger' : ''} ${status}`}
           aria-label={`${strikes} strikes out of ${maxLives}`}
         >
-          <div className="gallows">
-            <span className="beam" />
-            <span className="brace" />
-            <span className="rope" />
-            {figureStage >= 1 && <span className="head" />}
-            {figureStage >= 2 && <span className="body" />}
-            {figureStage >= 3 && <span className="arm left" />}
-            {figureStage >= 4 && <span className="arm right" />}
-            {figureStage >= 5 && <span className="leg left" />}
-            {figureStage >= 6 && <span className="leg right" />}
-          </div>
+          <svg
+            className="hang-figure"
+            viewBox="0 0 145 170"
+            preserveAspectRatio="xMidYMid meet"
+            role="img"
+            aria-label={`Hangman drawing: ${figureStage} out of 6 body parts`}
+          >
+            <g className="hang-scaffold" fill="none" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 161H125M35 161V13H96V39M35 36L59 13" />
+            </g>
+            <g className="hang-person" fill="none" strokeLinecap="round" strokeLinejoin="round">
+              {figureStage >= 1 && <circle className="hang-part" cx="96" cy="55" r="16" />}
+              {figureStage >= 2 && <path className="hang-part" d="M96 71V112" />}
+              {figureStage >= 3 && <path className="hang-part" d="M96 82L73 106" />}
+              {figureStage >= 4 && <path className="hang-part" d="M96 82L119 106" />}
+              {figureStage >= 5 && <path className="hang-part" d="M96 112L77 142" />}
+              {figureStage >= 6 && <path className="hang-part" d="M96 112L115 142" />}
+            </g>
+          </svg>
 
           <div className="lives">
             <span>{lives}</span>
@@ -605,25 +622,26 @@ export default function Hangman({ onComplete }) {
 
         <div className="hangman-play">
           <div className={`hang-word ${status}`} aria-label="Hidden word">
-            {[...entry.word].map((letter, index) => {
-              const isLetter = /[A-Z]/.test(letter)
-              const visible =
-                status === 'lost' ||
-                guessed.includes(letter) ||
-                !isLetter
-
-              return (
-                <span
-                  className={[
-                    visible ? 'revealed' : '',
-                    !isLetter ? 'separator' : '',
-                  ].filter(Boolean).join(' ')}
-                  key={`${letter}-${index}`}
-                >
-                  {visible ? letter : ''}
-                </span>
-              )
-            })}
+            {entry.word.split(/\\s+/).filter(Boolean).map((word, wordIndex) => (
+              <span
+                className="hang-word-group"
+                style={{ '--letters': word.length }}
+                key={wordIndex}
+              >
+                {[...word].map((letter, index) => {
+                  const isLetter = /[A-Z]/.test(letter)
+                  const visible = status === 'lost' || guessed.includes(letter) || !isLetter
+                  return (
+                    <span
+                      className={`hang-letter ${visible ? 'revealed' : ''} ${isLetter ? '' : 'separator'}`}
+                      key={index}
+                    >
+                      {visible ? letter : ''}
+                    </span>
+                  )
+                })}
+              </span>
+            ))}
           </div>
 
           <div className="hang-support-row">
@@ -679,29 +697,34 @@ export default function Hangman({ onComplete }) {
             </div>
           )}
 
-          <div className="letter-grid">
-            {ALPHABET.map((letter) => {
-              const used = guessed.includes(letter)
-              const good = used && entry.word.includes(letter)
-              const bad = used && !entry.word.includes(letter)
-              const recent = lastGuess === letter
+          <div className="letter-grid" aria-label="QWERTY letter keyboard">
+            {KEY_ROWS.map((row) => (
+              <div className="letter-key-row" key={row}>
+                {[...row].map((letter) => {
+                  const used = guessed.includes(letter)
+                  const good = used && entry.word.includes(letter)
+                  const bad = used && !entry.word.includes(letter)
+                  const recent = lastGuess === letter
 
-              return (
-                <button
-                  key={letter}
-                  className={[
-                    'letter-key',
-                    good ? 'good' : '',
-                    bad ? 'bad' : '',
-                    recent ? 'recent' : '',
-                  ].filter(Boolean).join(' ')}
-                  disabled={used || status !== 'playing'}
-                  onClick={() => choose(letter)}
-                >
-                  {letter}
-                </button>
-              )
-            })}
+                  return (
+                    <button
+                      key={letter}
+                      type="button"
+                      className={[
+                        'letter-key',
+                        good ? 'good' : '',
+                        bad ? 'bad' : '',
+                        recent ? 'recent' : '',
+                      ].filter(Boolean).join(' ')}
+                      disabled={used || status !== 'playing'}
+                      onClick={() => choose(letter)}
+                    >
+                      {letter}
+                    </button>
+                  )
+                })}
+              </div>
+            ))}
           </div>
 
           <div className="hang-keyboard-note">
