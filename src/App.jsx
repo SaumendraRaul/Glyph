@@ -349,6 +349,91 @@ const SCOREBOARD_META = {
   },
 }
 
+
+const FX_KEY = 'glyph-arcade-fx-v1'
+
+function loadFxPreference() {
+  try {
+    const saved = localStorage.getItem(FX_KEY)
+    return saved == null ? true : saved === 'true'
+  } catch {
+    return true
+  }
+}
+
+function playArcadeSound(audioRef, enabled, cue) {
+  if (!enabled || typeof window === 'undefined') return
+
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext
+  if (!AudioContextClass) return
+
+  try {
+    if (!audioRef.current) audioRef.current = new AudioContextClass()
+    const ctx = audioRef.current
+    if (ctx.state === 'suspended') ctx.resume().catch(() => {})
+
+    const now = ctx.currentTime
+
+    function tone(frequency, offset, duration, volume, wave = 'sine', endFrequency = null) {
+      const oscillator = ctx.createOscillator()
+      const gain = ctx.createGain()
+
+      oscillator.type = wave
+      oscillator.frequency.setValueAtTime(frequency, now + offset)
+
+      if (endFrequency != null) {
+        oscillator.frequency.exponentialRampToValueAtTime(
+          Math.max(1, endFrequency),
+          now + offset + duration,
+        )
+      }
+
+      gain.gain.setValueAtTime(0.0001, now + offset)
+      gain.gain.exponentialRampToValueAtTime(volume, now + offset + 0.008)
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + offset + duration)
+
+      oscillator.connect(gain)
+      gain.connect(ctx.destination)
+      oscillator.start(now + offset)
+      oscillator.stop(now + offset + duration + 0.02)
+    }
+
+    if (cue === 'tap') {
+      tone(520, 0, 0.045, 0.018, 'square', 410)
+      return
+    }
+
+    if (cue === 'launch') {
+      tone(180, 0, 0.08, 0.025, 'triangle', 320)
+      tone(360, 0.055, 0.11, 0.018, 'sine', 620)
+      return
+    }
+
+    if (cue === 'win') {
+      tone(392, 0, 0.15, 0.035, 'triangle')
+      tone(523.25, 0.09, 0.16, 0.036, 'triangle')
+      tone(659.25, 0.18, 0.19, 0.04, 'triangle')
+      tone(783.99, 0.29, 0.28, 0.045, 'sine')
+      return
+    }
+
+    if (cue === 'best') {
+      tone(523.25, 0, 0.14, 0.032, 'triangle')
+      tone(659.25, 0.07, 0.14, 0.034, 'triangle')
+      tone(783.99, 0.14, 0.18, 0.038, 'triangle')
+      tone(1046.5, 0.24, 0.3, 0.045, 'sine')
+      return
+    }
+
+    if (cue === 'loss') {
+      tone(246.94, 0, 0.16, 0.028, 'sawtooth', 196)
+      tone(174.61, 0.12, 0.2, 0.025, 'triangle', 130.81)
+    }
+  } catch {
+    // Audio is enhancement-only; unsupported devices keep the full game experience.
+  }
+}
+
 function formatAttemptTime(timestamp) {
   if (!timestamp) return ''
   const date = new Date(timestamp)
@@ -788,7 +873,13 @@ function Dashboard({ profile, totals, onPlay, onReset }) {
 export default function App() {
   const [activeGame, setActiveGame] = useState(null)
   const [resultOverlay, setResultOverlay] = useState(null)
+  const [startOverlay, setStartOverlay] = useState(null)
+  const [impact, setImpact] = useState('')
+  const [fxEnabled, setFxEnabled] = useState(loadFxPreference)
   const resultTimer = useRef(null)
+  const startTimer = useRef(null)
+  const impactTimer = useRef(null)
+  const audioRef = useRef(null)
   const { profile, recordResult, resetProfile, totals } = useProfile()
 
   const gameMeta = useMemo(
@@ -797,8 +888,36 @@ export default function App() {
   )
 
   const ActiveGame = activeGame ? GAME_COMPONENTS[activeGame] : null
+  const playerLevel = levelFromXp(profile.xp)
 
-  useEffect(() => () => window.clearTimeout(resultTimer.current), [])
+  useEffect(() => {
+    try {
+      localStorage.setItem(FX_KEY, String(fxEnabled))
+    } catch {
+      // Preference persistence is optional.
+    }
+  }, [fxEnabled])
+
+  useEffect(() => {
+    function onPointerDown(event) {
+      const button = event.target instanceof Element
+        ? event.target.closest('button')
+        : null
+
+      if (!button || button.disabled) return
+      playArcadeSound(audioRef, fxEnabled, 'tap')
+    }
+
+    document.addEventListener('pointerdown', onPointerDown, true)
+    return () => document.removeEventListener('pointerdown', onPointerDown, true)
+  }, [fxEnabled])
+
+  useEffect(() => () => {
+    window.clearTimeout(resultTimer.current)
+    window.clearTimeout(startTimer.current)
+    window.clearTimeout(impactTimer.current)
+    audioRef.current?.close?.().catch?.(() => {})
+  }, [])
 
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return undefined
@@ -825,10 +944,31 @@ export default function App() {
 
   function navigate(nextGame) {
     window.clearTimeout(resultTimer.current)
+    window.clearTimeout(startTimer.current)
+    window.clearTimeout(impactTimer.current)
     setResultOverlay(null)
+    setImpact('')
+
+    const targetMeta = nextGame
+      ? GAMES.find((game) => game.id === nextGame)
+      : null
+
+    if (nextGame) playArcadeSound(audioRef, fxEnabled, 'launch')
 
     const apply = () => {
-      flushSync(() => setActiveGame(nextGame))
+      flushSync(() => {
+        setActiveGame(nextGame)
+        setStartOverlay(
+          targetMeta
+            ? {
+                id: Date.now(),
+                title: targetMeta.title,
+                eyebrow: targetMeta.eyebrow,
+                icon: targetMeta.icon,
+              }
+            : null,
+        )
+      })
       window.scrollTo(0, 0)
     }
 
@@ -837,38 +977,92 @@ export default function App() {
     } else {
       apply()
     }
+
+    if (targetMeta) {
+      startTimer.current = window.setTimeout(() => {
+        setStartOverlay(null)
+      }, 760)
+    }
+  }
+
+  function toggleFx() {
+    const next = !fxEnabled
+    setFxEnabled(next)
+    if (next) playArcadeSound(audioRef, true, 'tap')
   }
 
   function handleGameComplete(result) {
     if (!activeGame) return
 
+    const meta = SCOREBOARD_META[activeGame]
+    const previousBest = profile.games[activeGame]?.best
+    const hasScore =
+      typeof result.score === 'number' &&
+      Number.isFinite(result.score)
+    const lowerIsBetter = result.lowerIsBetter !== false
+    const newBest =
+      hasScore &&
+      (
+        previousBest == null ||
+        (lowerIsBetter && result.score < previousBest) ||
+        (!lowerIsBetter && result.score > previousBest)
+      )
+
+    const bonusXp = result.won
+      ? Math.max(0, Math.min(40, Math.round(result.bonusXp || 0)))
+      : 0
+    const xpGain = (result.won ? 60 : 15) + bonusXp
+
     recordResult(activeGame, result)
 
-    const meta = SCOREBOARD_META[activeGame]
     const scoreText =
-      typeof result.score === 'number' &&
-      Number.isFinite(result.score) &&
-      meta
+      hasScore && meta
         ? meta.format(result.score)
         : result.won
           ? 'COMPLETE'
           : 'TRY AGAIN'
 
     window.clearTimeout(resultTimer.current)
+    window.clearTimeout(impactTimer.current)
+
+    setImpact(result.won ? 'impact-win' : 'impact-loss')
     setResultOverlay({
       id: Date.now(),
       won: Boolean(result.won),
+      newBest,
       game: gameMeta?.title || 'Glyph',
       score: scoreText,
+      xpGain,
+      streak: result.won ? profile.streak + 1 : 0,
     })
+
+    playArcadeSound(
+      audioRef,
+      fxEnabled,
+      result.won ? (newBest ? 'best' : 'win') : 'loss',
+    )
+
+    if (fxEnabled && typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate(
+        result.won
+          ? newBest
+            ? [35, 45, 55, 45, 90]
+            : [35, 45, 75]
+          : [65, 45, 65],
+      )
+    }
+
+    impactTimer.current = window.setTimeout(() => {
+      setImpact('')
+    }, 520)
 
     resultTimer.current = window.setTimeout(() => {
       setResultOverlay(null)
-    }, 1750)
+    }, newBest ? 2200 : 1850)
   }
 
   return (
-    <div className={`app-shell ${ActiveGame ? `game-active game-active-${activeGame}` : ''}`}>
+    <div className={`app-shell ${ActiveGame ? `game-active game-active-${activeGame}` : ''} ${impact}`}>
       <header className="topbar">
         <button className="brand" onClick={() => navigate(null)} aria-label="Go to Glyph home">
           <span className="brand-mark">G</span>
@@ -901,7 +1095,21 @@ export default function App() {
                 <h1>{gameMeta.title}</h1>
                 <p>{gameMeta.description}</p>
               </div>
-              <div className="game-icon large">{gameMeta.icon}</div>
+              <div className="game-title-actions">
+                <div className="arcade-hud" aria-label="Player status">
+                  <span><b>LV</b>{playerLevel.level}</span>
+                  <span className={profile.streak >= 3 ? 'hot' : ''}><b>STREAK</b>{profile.streak}</span>
+                </div>
+                <button
+                  className={`fx-toggle ${fxEnabled ? 'active' : ''}`}
+                  onClick={toggleFx}
+                  aria-label={fxEnabled ? 'Disable arcade sound and haptics' : 'Enable arcade sound and haptics'}
+                  title={fxEnabled ? 'Arcade FX on' : 'Arcade FX off'}
+                >
+                  {fxEnabled ? '♪' : '×'}
+                </button>
+                <div className="game-icon large">{gameMeta.icon}</div>
+              </div>
             </div>
             <div className="game-play-layout">
               <div className="game-stage">
@@ -916,14 +1124,36 @@ export default function App() {
         )}
       </main>
 
+      {startOverlay && (
+        <div className="start-overlay" key={startOverlay.id} aria-hidden="true">
+          <div className="start-overlay-line" />
+          <div className="start-overlay-card">
+            <span className="start-overlay-icon">{startOverlay.icon}</span>
+            <span>{startOverlay.eyebrow}</span>
+            <strong>{startOverlay.title}</strong>
+            <small>READY</small>
+          </div>
+          <div className="start-overlay-line" />
+        </div>
+      )}
+
       {resultOverlay && (
         <div
-          className={`result-overlay ${resultOverlay.won ? 'win' : 'loss'}`}
+          className={`result-overlay ${resultOverlay.won ? 'win' : 'loss'} ${resultOverlay.newBest ? 'new-best' : ''}`}
           role="status"
           aria-live="assertive"
           key={resultOverlay.id}
         >
+          <div className="result-particles" aria-hidden="true">
+            {Array.from({ length: resultOverlay.won ? 22 : 10 }, (_, index) => (
+              <i style={{ '--particle': index }} key={index} />
+            ))}
+          </div>
+
           <div className="result-overlay-card">
+            {resultOverlay.newBest && (
+              <span className="result-best-ribbon">NEW BEST</span>
+            )}
             <span className="result-overlay-mark" aria-hidden="true">
               {resultOverlay.won ? '✓' : '×'}
             </span>
@@ -932,6 +1162,12 @@ export default function App() {
             </span>
             <strong>{resultOverlay.game}</strong>
             <small>{resultOverlay.score}</small>
+            <div className="result-rewards">
+              <span>+{resultOverlay.xpGain} XP</span>
+              {resultOverlay.won && resultOverlay.streak > 1 && (
+                <span>STREAK ×{resultOverlay.streak}</span>
+              )}
+            </div>
           </div>
         </div>
       )}
