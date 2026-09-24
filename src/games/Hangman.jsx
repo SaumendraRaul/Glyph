@@ -622,7 +622,7 @@ export default function Hangman({ onComplete }) {
 
         <div className="hangman-play">
           <div className={`hang-word ${status}`} aria-label="Hidden word">
-            {entry.word.split(/\\s+/).filter(Boolean).map((word, wordIndex) => (
+            {entry.word.split(/\s+/).filter(Boolean).map((word, wordIndex) => (
               <span
                 className="hang-word-group"
                 style={{ '--letters': word.length }}
