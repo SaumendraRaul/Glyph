@@ -6390,3 +6390,800 @@ footer {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* =========================================================
+   Portrait gameplay shell + universal completion indicator
+   ========================================================= */
+
+.result-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(6,8,12,.18);
+  backdrop-filter: blur(2px);
+  animation: resultBackdrop 1.75s ease both;
+}
+
+.result-overlay-card {
+  width: min(260px, calc(100vw - 48px));
+  min-height: 210px;
+  padding: 22px 18px;
+  border: 1px solid #3c4450;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 50% 10%, rgba(255,255,255,.045), transparent 42%),
+    rgba(13,17,23,.97);
+  box-shadow: 0 24px 90px rgba(0,0,0,.42);
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 7px;
+  text-align: center;
+  animation: resultCardPop 1.75s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.result-overlay-mark {
+  width: 72px;
+  height: 72px;
+  margin-bottom: 4px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 2.15rem;
+  font-weight: 900;
+}
+
+.result-overlay-kicker {
+  font: 700 .58rem 'DM Mono', monospace;
+  letter-spacing: .18em;
+}
+
+.result-overlay-card > strong {
+  font-size: 1.35rem;
+  letter-spacing: -.035em;
+}
+
+.result-overlay-card > small {
+  color: #818b9a;
+  font: 600 .68rem 'DM Mono', monospace;
+}
+
+.result-overlay.win .result-overlay-card {
+  color: #c8ff3d;
+  border-color: rgba(200,255,61,.34);
+}
+
+.result-overlay.loss .result-overlay-card {
+  color: #ff8178;
+  border-color: rgba(255,129,120,.34);
+}
+
+@keyframes resultBackdrop {
+  0% { opacity: 0; }
+  12%, 78% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes resultCardPop {
+  0% { opacity: 0; transform: scale(.72) translateY(14px); }
+  12% { opacity: 1; transform: scale(1.045) translateY(0); }
+  20%, 76% { opacity: 1; transform: scale(1) translateY(0); }
+  100% { opacity: 0; transform: scale(.96) translateY(-8px); }
+}
+
+@media (max-width: 680px) and (orientation: portrait) {
+  .app-shell.game-active {
+    width: calc(100% - 12px);
+    min-height: 100dvh;
+  }
+
+  .game-active .topbar,
+  .game-active footer {
+    display: none;
+  }
+
+  .game-active main {
+    padding:
+      max(6px, env(safe-area-inset-top))
+      0
+      max(6px, env(safe-area-inset-bottom));
+  }
+
+  .game-active .game-screen {
+    min-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 12px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .game-active .back-btn {
+    min-height: 30px;
+    margin: 0 0 3px;
+    font-size: .67rem;
+  }
+
+  .game-active .game-title-row {
+    min-height: 38px;
+    margin: 0 0 6px;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .game-active .game-title-row .kicker,
+  .game-active .game-title-row p {
+    display: none;
+  }
+
+  .game-active .game-title-row h1 {
+    margin: 0;
+    font-size: 1.2rem;
+    line-height: 1;
+    letter-spacing: -.035em;
+  }
+
+  .game-active .game-icon.large {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    font-size: .78rem;
+  }
+
+  .game-active .game-play-layout {
+    display: block;
+    flex: 1;
+  }
+
+  .game-active .scoreboard-panel {
+    display: none;
+  }
+
+  .game-active .game-stage::before {
+    display: none;
+  }
+
+  .game-active .game-panel {
+    padding: 8px;
+    border-radius: 12px;
+    box-shadow: none;
+  }
+
+  .game-active .game-toolbar {
+    min-height: 0;
+    margin-bottom: 8px;
+    padding-bottom: 7px;
+    gap: 6px;
+  }
+
+  .game-active .game-toolbar strong {
+    font-size: .68rem;
+  }
+
+  .game-active .mine-stats {
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  .game-active .mine-stats > div {
+    min-width: 0;
+    min-height: 34px;
+    padding: 4px 6px;
+    border-radius: 7px;
+  }
+
+  .game-active .micro {
+    font-size: .43rem;
+    letter-spacing: .08em;
+  }
+
+  .game-active .filter-chip,
+  .game-active .secondary-btn {
+    min-height: 34px;
+  }
+
+  .game-active .game-message {
+    min-height: 26px;
+    margin-top: 6px;
+    font-size: .65rem;
+    line-height: 1.3;
+  }
+
+  .game-active .filter-chips {
+    gap: 4px;
+  }
+
+  /* Word Grid */
+  .game-active-wordle .word-mode-bar {
+    margin-bottom: 6px;
+    gap: 5px;
+  }
+
+  .game-active-wordle .word-hard-toggle {
+    min-height: 36px;
+    padding: 5px 8px;
+  }
+
+  .game-active-wordle .game-toolbar {
+    display: none;
+  }
+
+  .game-active-wordle .word-board {
+    width: min(280px, 82vw);
+    margin: 3px auto 7px;
+    gap: 4px;
+  }
+
+  .game-active-wordle .word-cell {
+    border-radius: 7px;
+    font-size: 1.05rem;
+  }
+
+  .game-active-wordle .keypad {
+    gap: 4px;
+  }
+
+  .game-active-wordle .key-row {
+    gap: 3px;
+  }
+
+  .game-active-wordle .key {
+    min-height: 36px;
+    padding: 0 4px;
+    border-radius: 6px;
+    font-size: .67rem;
+  }
+
+  .game-active-wordle .key.wide {
+    min-width: 42px;
+    font-size: .48rem;
+  }
+
+  /* Hangman: designed to fit a normal portrait phone during PLAY */
+  .game-active-hangman .hangman-panel {
+    padding: 6px;
+  }
+
+  .game-active-hangman .hang-mode-switch {
+    margin-bottom: 5px;
+    padding: 2px;
+    gap: 2px;
+  }
+
+  .game-active-hangman .hang-mode-switch button {
+    min-height: 30px;
+    border-radius: 6px;
+    font-size: .5rem;
+  }
+
+  .game-active-hangman .hang-config-row {
+    margin-bottom: 5px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 5px;
+  }
+
+  .game-active-hangman .hang-config-row > div {
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .game-active-hangman .hang-config-row .filter-chips {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0,1fr));
+    gap: 2px;
+  }
+
+  .game-active-hangman .hang-config-row .filter-chip {
+    min-height: 28px;
+    padding: 0 2px;
+    border-radius: 6px;
+    font-size: .43rem;
+  }
+
+  .game-active-hangman .hangman-toolbar {
+    display: none;
+  }
+
+  .game-active-hangman .hangman-stage-strip {
+    min-height: 28px;
+    margin-bottom: 5px;
+    padding: 4px 7px;
+    border-radius: 7px;
+  }
+
+  .game-active-hangman .hangman-stage-strip > div:first-child {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .game-active-hangman .hangman-stage-strip > div:first-child strong {
+    font-size: .68rem;
+  }
+
+  .game-active-hangman .hang-stage-dots {
+    gap: 2px;
+  }
+
+  .game-active-hangman .hang-stage-dots span {
+    min-width: 0;
+    height: 5px;
+    border-radius: 999px;
+  }
+
+  .game-active-hangman .hangman-layout {
+    display: grid;
+    grid-template-columns: 92px minmax(0,1fr);
+    gap: 6px;
+    align-items: start;
+  }
+
+  .game-active-hangman .hangman-play {
+    display: contents;
+  }
+
+  .game-active-hangman .hangman-art {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    min-height: 156px;
+    border-radius: 9px;
+  }
+
+  .game-active-hangman .gallows {
+    width: 145px;
+    height: 220px;
+    transform: scale(.56);
+    transform-origin: center;
+  }
+
+  .game-active-hangman .lives {
+    left: 6px;
+    bottom: 5px;
+  }
+
+  .game-active-hangman .lives span {
+    font-size: 1.15rem;
+  }
+
+  .game-active-hangman .lives small {
+    font-size: .48rem;
+  }
+
+  .game-active-hangman .hang-stage-label {
+    display: none;
+  }
+
+  .game-active-hangman .hang-word {
+    grid-column: 2;
+    margin: 2px 0 7px;
+    gap: 4px;
+    align-self: end;
+  }
+
+  .game-active-hangman .hang-word span {
+    width: 24px;
+    min-height: 31px;
+    padding-bottom: 3px;
+    font-size: .86rem;
+  }
+
+  .game-active-hangman .hang-word span.separator {
+    width: 7px;
+    min-width: 7px;
+  }
+
+  .game-active-hangman .hang-support-row {
+    grid-column: 2;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4px;
+    margin-bottom: 0;
+  }
+
+  .game-active-hangman .hang-hint-btn {
+    min-height: 48px;
+    padding: 6px 8px;
+    border-radius: 8px;
+  }
+
+  .game-active-hangman .hang-hint-btn span {
+    font-size: .62rem;
+  }
+
+  .game-active-hangman .hang-hint-btn small {
+    font-size: .45rem;
+  }
+
+  .game-active-hangman .hang-wrong-box {
+    display: none;
+  }
+
+  .game-active-hangman .hang-hints-stack {
+    grid-column: 1 / -1;
+    max-height: 68px;
+    overflow-y: auto;
+    margin: 5px 0 0;
+    gap: 4px;
+  }
+
+  .game-active-hangman .hang-hint-card {
+    padding: 6px 8px;
+    border-radius: 7px;
+  }
+
+  .game-active-hangman .hang-hint-card p {
+    margin: 3px 0 0;
+    font-size: .61rem;
+    line-height: 1.3;
+  }
+
+  .game-active-hangman .letter-grid {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(9, minmax(0,1fr));
+    gap: 3px;
+    margin-top: 5px;
+  }
+
+  .game-active-hangman .letter-key {
+    min-height: 32px;
+    border-radius: 6px;
+    font-size: .66rem;
+    padding: 0;
+  }
+
+  .game-active-hangman .hang-keyboard-note {
+    display: none;
+  }
+
+  .game-active-hangman .game-message {
+    grid-column: 1 / -1;
+    margin-top: 4px;
+  }
+
+  /* Minesweeper */
+  .game-active-minesweeper .mine-difficulty {
+    margin-bottom: 5px;
+    gap: 3px;
+  }
+
+  .game-active-minesweeper .mine-difficulty .filter-chip {
+    min-height: 34px;
+  }
+
+  .game-active-minesweeper .mine-board {
+    gap: 2px;
+  }
+
+  .game-active-minesweeper .mine-board.mine-easy,
+  .game-active-minesweeper .mine-board.mine-medium,
+  .game-active-minesweeper .mine-board.mine-expert {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .game-active-minesweeper .mine-cell {
+    border-radius: 4px;
+    font-size: .58rem;
+  }
+
+  /* Memory */
+  .game-active-memory .memory-settings {
+    margin-bottom: 6px;
+    gap: 5px;
+  }
+
+  .game-active-memory .memory-preview-toggle {
+    min-height: 35px;
+    padding: 4px 7px;
+  }
+
+  .game-active-memory .game-toolbar {
+    margin-bottom: 6px;
+  }
+
+  .game-active-memory .memory-grid {
+    width: min(100%, 430px);
+    gap: 4px;
+  }
+
+  .game-active-memory .memory-card {
+    border-radius: 7px;
+    font-size: clamp(.85rem, 5vw, 1.25rem);
+  }
+
+  /* 2048 */
+  .game-active-2048 .game2048-settings {
+    margin-bottom: 5px;
+    gap: 5px;
+  }
+
+  .game-active-2048 .game2048-undo {
+    min-height: 34px;
+    padding: 4px 7px;
+  }
+
+  .game-active-2048 .board2048 {
+    width: min(100%, 390px);
+    padding: 5px;
+    gap: 5px;
+    border-radius: 11px;
+  }
+
+  .game-active-2048 .tile2048 {
+    border-radius: 7px;
+    font-size: clamp(.9rem, 6vw, 1.45rem);
+  }
+
+  .game-active-2048 .direction-pad {
+    margin-top: 6px;
+  }
+
+  /* Snake */
+  .game-active-snake .snake-settings {
+    margin-bottom: 5px;
+    gap: 5px;
+  }
+
+  .game-active-snake .snake-settings > div:nth-child(1),
+  .game-active-snake .snake-settings > div:nth-child(2) {
+    display: none;
+  }
+
+  .game-active-snake .snake-rule-toggles button {
+    min-height: 34px;
+    padding: 3px 6px;
+  }
+
+  .game-active-snake .snake-board {
+    width: min(100%, 390px);
+  }
+
+  .game-active-snake .direction-pad {
+    margin-top: 5px;
+  }
+
+  /* Connections */
+  .game-active-connections .connection-mode-switch {
+    margin-bottom: 5px;
+  }
+
+  .game-active-connections .connection-mode-switch button {
+    min-height: 30px;
+  }
+
+  .game-active-connections .connection-filters {
+    margin-bottom: 6px;
+  }
+
+  .game-active-connections .filter-summary {
+    display: none;
+  }
+
+  .game-active-connections .connections-grid {
+    gap: 4px;
+  }
+
+  .game-active-connections .connection-word {
+    min-height: 46px;
+    padding: 5px;
+    font-size: .59rem;
+  }
+
+  .game-active-connections .connections-actions {
+    margin-top: 6px;
+  }
+
+  /* Reaction */
+  .game-active-reaction .reaction-settings {
+    margin-bottom: 5px;
+    gap: 5px;
+  }
+
+  .game-active-reaction .reaction-zone {
+    min-height: 250px;
+  }
+
+  .game-active-reaction .reaction-summary {
+    margin: 6px 0 4px;
+    gap: 4px;
+  }
+
+  .game-active-reaction .reaction-history {
+    gap: 4px;
+  }
+
+  /* Guesswork */
+  .game-active-guesswork .guesswork-mode-switch {
+    margin-bottom: 5px;
+  }
+
+  .game-active-guesswork .guesswork-mode-switch button {
+    min-height: 30px;
+  }
+
+  .game-active-guesswork .guesswork-rules-row {
+    margin-bottom: 5px;
+  }
+
+  .game-active-guesswork .clue-stack {
+    gap: 4px;
+  }
+
+  .game-active-guesswork .clue-card {
+    min-height: 46px;
+    padding: 7px 8px;
+  }
+
+  .game-active-guesswork .guess-entry {
+    margin-top: 6px;
+  }
+
+  .game-active-guesswork .guess-actions {
+    margin-top: 5px;
+  }
+
+  /* Type Rush */
+  .game-active-typing .typing-mode-grid,
+  .game-active-typing .typing-settings {
+    margin-bottom: 5px;
+    gap: 5px;
+  }
+
+  .game-active-typing .typing-stage {
+    padding: 9px;
+  }
+
+  .game-active-typing .word-ribbon {
+    min-height: 62px;
+  }
+
+  .game-active-typing .typing-summary {
+    margin-top: 6px;
+    gap: 4px;
+  }
+
+  .game-active-typing .typing-summary > div {
+    min-height: 46px;
+    padding: 5px;
+  }
+
+  /* Connect 4 */
+  .game-active-connect4 .connect-controls {
+    margin-bottom: 5px;
+  }
+
+  .game-active-connect4 .connect-board {
+    padding: 5px;
+    gap: 3px;
+    border-radius: 11px;
+  }
+
+  .game-active-connect4 .connect-drop {
+    min-height: 24px;
+  }
+
+  /* Sudoku */
+  .game-active-sudoku .sudoku-levels {
+    margin-bottom: 5px;
+  }
+
+  .game-active-sudoku .sudoku-pad {
+    margin-top: 6px;
+    gap: 3px;
+  }
+
+  .game-active-sudoku .sudoku-pad button {
+    min-height: 34px;
+  }
+
+  .game-active-sudoku .sudoku-actions {
+    margin-top: 5px;
+  }
+
+  /* Chess */
+  .game-active-chess .chess-levels,
+  .game-active-chess .chess-puzzle-copy {
+    margin-bottom: 5px;
+  }
+
+  .game-active-chess .chess-puzzle-copy {
+    padding: 7px 8px;
+  }
+
+  .game-active-chess .chess-puzzle-copy p {
+    display: none;
+  }
+
+  .game-active-chess .chess-side {
+    margin-top: 5px;
+  }
+
+  /* Pokémon games: keep the active deduction controls visible first */
+  .game-active-pokeguess .pokeguess-settings,
+  .game-active-silhouette .pokemon-gen-filter,
+  .game-active-pokemon-connections .connection-filters,
+  .game-active-statle .filter-chips {
+    margin-bottom: 5px;
+  }
+
+  .game-active-pokeguess .pokeguess-help {
+    display: none;
+  }
+
+  .game-active-pokeguess .poke-clue-area {
+    margin-bottom: 6px;
+    padding: 7px;
+  }
+
+  .game-active-pokeguess .poke-clue-ladder {
+    max-height: 110px;
+    overflow-y: auto;
+  }
+
+  .game-active-silhouette .silhouette-stage {
+    min-height: 205px;
+  }
+
+  .game-active-silhouette .silhouette-stage img {
+    height: 168px;
+  }
+
+  /* Deadcenter */
+  .game-active-aim .aim-settings {
+    margin-bottom: 5px;
+    gap: 5px;
+  }
+
+  .game-active-aim .aim-zone {
+    min-height: 0;
+    height: min(58dvh, 470px);
+  }
+
+  /* Crosswire */
+  .game-active-crossword .crossword-title {
+    margin-bottom: 5px;
+  }
+
+  .game-active-crossword .cross-active-clue {
+    min-height: 46px;
+    margin-top: 5px;
+    padding: 6px 8px;
+  }
+
+  .game-active-crossword .cross-actions {
+    margin-top: 5px;
+  }
+
+  .game-active-crossword .cross-keyboard {
+    margin-top: 5px;
+    gap: 3px;
+  }
+
+  .game-active-crossword .cross-keyboard button {
+    min-height: 31px;
+  }
+
+  .result-overlay-card {
+    width: min(220px, calc(100vw - 44px));
+    min-height: 180px;
+    border-radius: 18px;
+    padding: 17px 14px;
+  }
+
+  .result-overlay-mark {
+    width: 60px;
+    height: 60px;
+    font-size: 1.8rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .result-overlay,
+  .result-overlay-card {
+    animation: none !important;
+  }
+}
