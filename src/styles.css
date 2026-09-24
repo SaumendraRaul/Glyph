@@ -7521,7 +7521,7 @@ footer {
 
 .result-particles i {
   --angle: calc(var(--particle) * 31deg);
-  --distance: calc(86px + (var(--particle) % 5) * 20px);
+  --distance: 130px;
   position: absolute;
   width: 6px;
   height: 12px;
@@ -7700,5 +7700,162 @@ footer {
 
   .result-particles {
     display: none;
+  }
+}
+
+
+.result-particles i:nth-child(5n+1) { --distance: 96px; }
+.result-particles i:nth-child(5n+2) { --distance: 118px; }
+.result-particles i:nth-child(5n+3) { --distance: 142px; }
+.result-particles i:nth-child(5n+4) { --distance: 164px; }
+.result-particles i:nth-child(5n) { --distance: 184px; }
+
+.result-overlay.win .result-particles {
+  color: #c8ff3d;
+}
+
+.result-overlay.loss .result-particles {
+  color: #ff8178;
+}
+
+.result-overlay.new-best .result-particles {
+  color: #ffe27a;
+}
+
+.result-overlay,
+.result-overlay-card {
+  animation-duration: 1.85s;
+}
+
+.result-overlay.new-best,
+.result-overlay.new-best .result-overlay-card {
+  animation-duration: 2.2s;
+}
+
+/* Achievement unlocks behave like actual game rewards, not database writes. */
+.achievement-toast {
+  position: fixed;
+  z-index: 1100;
+  top: max(18px, calc(env(safe-area-inset-top) + 12px));
+  right: max(18px, calc(env(safe-area-inset-right) + 12px));
+  width: min(370px, calc(100vw - 36px));
+  min-height: 84px;
+  padding: 12px 13px;
+  border: 1px solid rgba(200,255,61,.25);
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 0 0, rgba(200,255,61,.07), transparent 45%),
+    rgba(12,16,21,.97);
+  box-shadow:
+    0 20px 70px rgba(0,0,0,.36),
+    0 0 35px rgba(200,255,61,.06);
+  pointer-events: none;
+  display: grid;
+  grid-template-columns: 44px minmax(0,1fr) auto;
+  align-items: center;
+  gap: 10px;
+  animation: achievementToastLife 3.2s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.achievement-toast-gem {
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(200,255,61,.36);
+  border-radius: 11px;
+  background: rgba(200,255,61,.055);
+  color: #c8ff3d;
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+  animation: achievementGem 1.1s ease-in-out infinite alternate;
+}
+
+.achievement-toast > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.achievement-toast > div > span {
+  color: #8ca45c;
+  font: 700 .45rem 'DM Mono', monospace;
+  letter-spacing: .12em;
+}
+
+.achievement-toast > div > strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #edf3e7;
+  font-size: .8rem;
+}
+
+.achievement-toast > div > small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #687383;
+  font-size: .57rem;
+}
+
+.achievement-toast > b {
+  min-width: 28px;
+  min-height: 28px;
+  padding: 0 6px;
+  border: 1px solid #354127;
+  border-radius: 999px;
+  color: #bfe97b;
+  display: grid;
+  place-items: center;
+  font: 700 .5rem 'DM Mono', monospace;
+}
+
+@keyframes achievementToastLife {
+  0% { opacity: 0; transform: translateX(24px) scale(.96); }
+  10%, 78% { opacity: 1; transform: translateX(0) scale(1); }
+  100% { opacity: 0; transform: translateX(18px) scale(.98); }
+}
+
+@keyframes achievementGem {
+  to {
+    color: #e4ff9c;
+    border-color: rgba(200,255,61,.55);
+    box-shadow: 0 0 22px rgba(200,255,61,.09);
+    transform: rotate(5deg);
+  }
+}
+
+@media (max-width: 680px) and (orientation: portrait) {
+  .achievement-toast {
+    top: max(8px, calc(env(safe-area-inset-top) + 5px));
+    right: 8px;
+    left: 8px;
+    width: auto;
+    min-height: 68px;
+    padding: 9px 10px;
+    grid-template-columns: 36px minmax(0,1fr) auto;
+    border-radius: 11px;
+  }
+
+  .achievement-toast-gem {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    font-size: .78rem;
+  }
+
+  .achievement-toast > div > strong {
+    font-size: .7rem;
+  }
+
+  .achievement-toast > div > small {
+    font-size: .5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .achievement-toast,
+  .achievement-toast-gem {
+    animation: none !important;
   }
 }
