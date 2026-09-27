@@ -74,11 +74,12 @@ export default function Hangman({ onComplete }) {
       ? [entry.hint]
       : []
 
+  const longestWord = Math.max(0, ...entry.word.trim().split(/\s+/).map((word) => word.length))
   const strikes = strikeEvents.length
   const lives = Math.max(0, maxLives - strikes)
   const figureStage = strikes === 0
     ? 0
-    : Math.min(6, Math.max(1, Math.floor((strikes / maxLives) * 6)))
+    : Math.min(6, Math.max(1, Math.ceil((strikes / maxLives) * 6)))
   const danger = lives <= Math.max(2, Math.ceil(maxLives * 0.25))
 
   const revealedCount = [...new Set(entry.word.split(''))]
@@ -461,7 +462,7 @@ export default function Hangman({ onComplete }) {
   }
 
   return (
-    <div className="game-panel hangman-panel">
+    <div className={`game-panel hangman-panel ${longestWord > 7 ? "long-word" : ""} ${longestWord > 16 ? "extra-long-word" : ""}`}>
       <div className="hang-mode-switch">
         <button
           className={mode === 'SOLO' ? 'active' : ''}
@@ -598,6 +599,10 @@ export default function Hangman({ onComplete }) {
           >
             <g className="hang-scaffold" fill="none" strokeLinecap="round" strokeLinejoin="round">
               <path d="M15 161H125M35 161V13H96V39M35 36L59 13" />
+            </g>
+            <g className="hang-ghost" fill="none" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="96" cy="55" r="16" />
+              <path d="M96 71V112M96 82L73 106M96 82L119 106M96 112L77 142M96 112L115 142" />
             </g>
             <g className="hang-person" fill="none" strokeLinecap="round" strokeLinejoin="round">
               {figureStage >= 1 && <circle className="hang-part" cx="96" cy="55" r="16" />}
