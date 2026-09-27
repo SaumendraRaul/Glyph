@@ -7859,3 +7859,396 @@ footer {
     animation: none !important;
   }
 }
+
+/* Hangman V4: align the live JSX with the layout, including portrait phones.
+   Earlier .gallows and flat .letter-grid rules target the retired markup. */
+.hangman-panel .hangman-stage-strip {
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.hangman-panel .hang-category-pill {
+  display: flex;
+  flex: 0 1 180px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  min-width: 0;
+}
+
+.hangman-panel .hang-category-pill > span {
+  color: #8995a7;
+  font: 600 .56rem 'DM Mono', monospace;
+  letter-spacing: .11em;
+}
+
+.hangman-panel .hang-category-pill > strong {
+  color: #d1efa0;
+  font-size: clamp(.76rem, 2.8vw, 1rem);
+  font-weight: 800;
+  overflow-wrap: anywhere;
+  line-height: 1.2;
+}
+
+.hangman-panel .hang-mini-reset {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #35404b;
+  border-radius: 8px;
+  background: #161c23;
+  color: #d7e9bb;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.hangman-panel .hang-mini-reset:focus-visible,
+.hangman-panel .letter-key:focus-visible {
+  outline: 2px solid #d1efa0;
+  outline-offset: 2px;
+}
+
+.hangman-panel .hang-figure {
+  display: block;
+  width: min(76%, 205px);
+  height: auto;
+  max-height: 275px;
+  margin: 0 auto 30px;
+  overflow: visible;
+}
+
+.hangman-panel .hang-scaffold {
+  stroke: #778393;
+  stroke-width: 4.2;
+}
+
+.hangman-panel .hang-ghost {
+  stroke: #8e9aad;
+  stroke-width: 3;
+  stroke-dasharray: 2 6;
+  opacity: .18;
+}
+
+.hangman-panel .hang-person {
+  stroke: #eff1ff;
+  stroke-width: 4.4;
+  filter: drop-shadow(0 0 3px rgba(226,230,255,.15));
+}
+
+.hangman-panel .hang-part {
+  animation: hangPartIn .26s ease both;
+}
+
+.hangman-panel .hangman-play {
+  min-width: 0;
+}
+
+/* One flex item per whole word. Only letters, never words, may be styled
+   as tiles. Very long words remain together and can scroll if necessary. */
+.hangman-panel .hang-word {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 12px 16px;
+  padding: 6px 0;
+}
+
+.hangman-panel .hang-word > .hang-word-group {
+  display: inline-flex;
+  box-sizing: border-box;
+  flex: 0 1 auto;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 4px;
+  width: auto;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: 0 0 3px;
+  border: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  scrollbar-width: thin;
+}
+
+.hangman-panel .hang-word > .hang-word-group > .hang-letter {
+  box-sizing: border-box;
+  display: grid;
+  flex: 0 0 34px;
+  width: 34px;
+  min-width: 0;
+  min-height: 46px;
+  padding: 0 0 5px;
+  place-items: end center;
+  border: 0;
+  border-bottom: 2px solid #667287;
+  color: #eff3fa;
+  font: 800 1.1rem 'DM Mono', monospace;
+}
+
+.hangman-panel .hang-word > .hang-word-group > .hang-letter.separator {
+  flex-basis: 13px;
+  width: 13px;
+  min-width: 13px;
+  border-bottom: 0;
+  font-size: .88rem;
+}
+
+/* KEY_ROWS renders three real rows, not 26 items in a flat grid. */
+.hangman-panel .letter-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 5px;
+  width: 100%;
+  min-width: 0;
+}
+
+.hangman-panel .letter-key-row {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 5px;
+  min-width: 0;
+  width: 100%;
+}
+
+.hangman-panel .letter-key-row > .letter-key {
+  box-sizing: border-box;
+  flex: 1 1 0;
+  width: auto;
+  max-width: 52px;
+  min-width: 0;
+  min-height: 45px;
+  padding: 0;
+  font-size: .85rem;
+}
+
+@media (max-width: 680px) and (orientation: portrait) {
+  /* Category is essential gameplay information, so never hide it with
+     the desktop toolbar. Place it above the rescue meter instead. */
+  .game-active-hangman .hangman-panel .hangman-stage-strip {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 32px;
+    grid-template-areas:
+      "category reset"
+      "rescue rescue"
+      "dots dots";
+    gap: 5px 7px;
+    align-items: center;
+    justify-content: stretch;
+    min-height: 0;
+    padding: 7px 9px;
+    margin: 0 0 6px;
+  }
+
+  .game-active-hangman .hangman-panel .hang-category-pill {
+    grid-area: category;
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 7px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .game-active-hangman .hangman-panel .hang-category-pill > span {
+    flex: 0 0 auto;
+    font-size: .52rem;
+  }
+
+  .game-active-hangman .hangman-panel .hang-category-pill > strong {
+    min-width: 0;
+    color: #d0ee90;
+    font-size: .81rem;
+    line-height: 1.15;
+  }
+
+  .game-active-hangman .hangman-panel .hang-progress-label {
+    grid-area: rescue;
+    justify-content: flex-start;
+    gap: 8px;
+  }
+
+  .game-active-hangman .hangman-panel .hang-mini-reset {
+    grid-area: reset;
+    width: 30px;
+    height: 30px;
+  }
+
+  .game-active-hangman .hangman-panel .hang-stage-dots {
+    grid-area: dots;
+    display: flex;
+    justify-content: stretch;
+    width: 100%;
+    min-width: 0;
+    gap: 4px;
+  }
+
+  .game-active-hangman .hangman-panel .hang-stage-dots > span {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: none;
+    height: 6px;
+  }
+
+  .game-active-hangman .hangman-panel .hangman-layout {
+    grid-template-columns: 92px minmax(0, 1fr);
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .game-active-hangman .hangman-panel .hangman-art {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    height: 158px;
+    min-height: 158px;
+    padding: 6px 2px;
+    overflow: hidden;
+  }
+
+  .game-active-hangman .hangman-panel .hang-figure {
+    flex: 0 0 auto;
+    width: 82px;
+    height: 106px;
+    max-height: 106px;
+    margin: 0 auto 1px;
+  }
+
+  .game-active-hangman .hangman-panel .hang-word {
+    grid-column: 2;
+    display: flex;
+    align-self: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 5px 7px;
+    min-width: 0;
+    min-height: 38px;
+    padding: 2px 0;
+    margin: 2px 0 5px;
+  }
+
+  .game-active-hangman .hangman-panel .hang-word > .hang-word-group {
+    gap: 2px;
+    padding-bottom: 2px;
+    max-width: 100%;
+    min-height: 0;
+  }
+
+  .game-active-hangman .hangman-panel .hang-word > .hang-word-group > .hang-letter {
+    flex: 0 0 23px;
+    width: 23px;
+    min-height: 31px;
+    padding: 0 0 3px;
+    font-size: .79rem;
+  }
+
+  .game-active-hangman .hangman-panel .hang-word > .hang-word-group > .hang-letter.separator {
+    flex-basis: 8px;
+    width: 8px;
+    min-width: 8px;
+    font-size: .65rem;
+  }
+
+  /* Eight-plus-letter words need the full phone width; the gallows
+     and hint share the row above them. */
+  .game-active-hangman .hangman-panel.long-word .hangman-art {
+    grid-row: 1;
+    height: 128px;
+    min-height: 128px;
+  }
+
+  .game-active-hangman .hangman-panel.long-word .hang-figure {
+    width: 76px;
+    height: 89px;
+    max-height: 89px;
+  }
+
+  .game-active-hangman .hangman-panel.long-word .hang-support-row {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+  }
+
+  .game-active-hangman .hangman-panel.long-word .hang-word {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-content: center;
+    min-height: 35px;
+    margin: 3px 0 5px;
+    padding: 0 2px;
+  }
+
+  .game-active-hangman .hangman-panel.long-word .hang-word > .hang-word-group > .hang-letter {
+    flex: 0 0 var(--fit-tile, 22px);
+    width: var(--fit-tile, 22px);
+    min-height: 30px;
+    font-size: clamp(.65rem, 2.9vw, .83rem);
+  }
+
+  .game-active-hangman .hangman-panel.extra-long-word .hang-word > .hang-word-group {
+    gap: 1px;
+  }
+
+  .game-active-hangman .hangman-panel.extra-long-word .hang-word > .hang-word-group > .hang-letter {
+    min-height: 25px;
+    font-size: clamp(.55rem, 2.4vw, .75rem);
+  }
+
+  .game-active-hangman .hangman-panel .letter-grid {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+    width: 100%;
+    margin-top: 6px;
+  }
+
+  .game-active-hangman .hangman-panel .letter-key-row {
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .game-active-hangman .hangman-panel .letter-key-row > .letter-key {
+    flex: 1 1 0;
+    max-width: none;
+    min-width: 0;
+    min-height: 40px;
+    border-radius: 6px;
+    padding: 0;
+    font-size: clamp(.65rem, 2.9vw, .88rem);
+    touch-action: manipulation;
+  }
+}
+
+@media (max-width: 350px) and (orientation: portrait) {
+  .game-active-hangman .hangman-panel .letter-key-row {
+    gap: 2px;
+  }
+
+  .game-active-hangman .hangman-panel .letter-key-row > .letter-key {
+    min-height: 36px;
+    font-size: .64rem;
+  }
+
+  .game-active-hangman .hangman-panel .hang-word > .hang-word-group > .hang-letter {
+    flex-basis: 21px;
+    width: 21px;
+  }
+
+  .game-active-hangman .hangman-panel.long-word .hang-word > .hang-word-group > .hang-letter {
+    flex-basis: var(--fit-tile, 21px);
+    width: var(--fit-tile, 21px);
+  }
+}
