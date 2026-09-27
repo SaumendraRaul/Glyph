@@ -630,7 +630,10 @@ export default function Hangman({ onComplete }) {
             {entry.word.split(/\s+/).filter(Boolean).map((word, wordIndex) => (
               <span
                 className="hang-word-group"
-                style={{ '--letters': word.length }}
+                style={{
+                  '--letters': word.length,
+                  '--fit-tile': `${Math.max(9, Math.min(28, Math.floor((280 - (word.length - 1) * 2) / word.length)))}px`,
+                }}
                 key={wordIndex}
               >
                 {[...word].map((letter, index) => {
